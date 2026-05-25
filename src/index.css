@@ -1,0 +1,161 @@
+@import "tailwindcss";
+
+@theme {
+  --color-neon-green: #00ff3c;
+  --color-neon-green-glow: #39ff14;
+  --color-neon-red: #ff3344;
+  --color-neon-red-glow: #ff5566;
+  --color-neon-yellow: #ffcc00;
+  --color-neon-yellow-glow: #ffe600;
+  --color-cyber-bg: #0b0d10;
+  --color-cyber-card: #12161a;
+  --color-cyber-border: #1c242c;
+  
+  --font-sans: 'Outfit', 'Inter', system-ui, -apple-system, sans-serif;
+  --font-display: 'Rajdhani', 'Outfit', 'Inter', sans-serif;
+}
+
+@layer base {
+  body {
+    background-color: #0b0d10;
+    color: #f4f4f5;
+    font-family: var(--font-sans);
+    overflow-x: hidden;
+    margin: 0;
+    padding: 0;
+  }
+  
+  h1, h2, h3, h4, .logo-font {
+    font-family: var(--font-display);
+  }
+}
+
+/* Custom Cyber Glow utilities */
+.glow-green {
+  box-shadow: 0 0 15px rgba(0, 255, 60, 0.25);
+  border-color: rgba(0, 255, 60, 0.4);
+}
+.glow-red {
+  box-shadow: 0 0 15px rgba(255, 51, 68, 0.25);
+  border-color: rgba(255, 51, 68, 0.4);
+}
+.glow-yellow {
+  box-shadow: 0 0 15px rgba(255, 204, 0, 0.25);
+  border-color: rgba(255, 204, 0, 0.4);
+}
+.text-glow-green {
+  text-shadow: 0 0 12px rgba(0, 255, 60, 0.7);
+}
+.text-glow-red {
+  text-shadow: 0 0 12px rgba(255, 51, 68, 0.7);
+}
+.text-glow-yellow {
+  text-shadow: 0 0 12px rgba(255, 204, 0, 0.7);
+}
+
+/* Glassmorphism utility */
+.glass-panel {
+  background: rgba(18, 22, 26, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.03);
+}
+
+/* Shimmer animation keyframes */
+@keyframes shimmer {
+  100% {
+    transform: translateX(250%) skewX(-12deg);
+  }
+}
+.animate-shimmer {
+  animation: shimmer 1.8s infinite;
+}
+
+/* Neon text/border custom animations */
+@keyframes pulse-neon-green {
+  0%, 100% {
+    text-shadow: 0 0 6px rgba(0, 255, 60, 0.4);
+    box-shadow: 0 0 12px rgba(0, 255, 60, 0.15);
+  }
+  50% {
+    text-shadow: 0 0 14px rgba(0, 255, 60, 0.85);
+    box-shadow: 0 0 22px rgba(0, 255, 60, 0.4);
+  }
+}
+
+.animate-pulse-green {
+  animation: pulse-neon-green 2s infinite ease-in-out;
+}
+
+/* Modo Crítico Override rules */
+.modo-critico {
+  --color-neon-green: #a1a1aa !important;
+  --color-neon-green-glow: #71717a !important;
+  --color-neon-red: #a1a1aa !important;
+  --color-neon-red-glow: #71717a !important;
+  --color-neon-yellow: #a1a1aa !important;
+  --color-neon-yellow-glow: #71717a !important;
+  --color-cyber-bg: #1c1917 !important;
+  --color-cyber-card: #292524 !important;
+  --color-cyber-border: #44403c !important;
+  background-color: #1c1917 !important;
+  color: #e7e5e4 !important;
+}
+
+.modo-critico .glow-green,
+.modo-critico .glow-red,
+.modo-critico .glow-yellow,
+.modo-critico .glass-panel {
+  box-shadow: none !important;
+  border-color: #44403c !important;
+  background: #292524 !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+.modo-critico .text-glow-green,
+.modo-critico .text-glow-red,
+.modo-critico .text-glow-yellow {
+  text-shadow: none !important;
+  color: #e7e5e4 !important;
+}
+
+.modo-critico .animate-pulse-green {
+  animation: none !important;
+  border-color: #44403c !important;
+}
+
+.modo-critico .animate-shimmer {
+  animation: none !important;
+}
+
+/* Disable animation if user prefers reduced motion or if in Modo Crítico */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+.modo-critico * {
+  animation: none !important;
+  transition: none !important;
+}
+
+/* Scrollbar customizations */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #0b0d10;
+}
+::-webkit-scrollbar-thumb {
+  background: #1c242c;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #2d3844;
+}
