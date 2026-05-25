@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { useStore } from '../../store/useStore'
 import { ShieldAlert } from 'lucide-react'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import { Button } from '../ui/Button'
 import { Card } from '../ui/Card'
 import { Badge } from '../ui/Badge'
@@ -10,6 +10,7 @@ import { casinoAudio } from '../../utils/audioEngine'
 import { CoinShower } from '../animations/CoinShower'
 import { Confetti } from '../ui/Confetti'
 import { LossShake } from '../animations/LossShake'
+import { CognitiveOverlay } from '../ui/CognitiveOverlay'
 
 export const DoubleGame: React.FC = () => {
   const { spendBalance, addBalance, incrementSimulatedStats } = useStore()
@@ -22,6 +23,12 @@ export const DoubleGame: React.FC = () => {
   const [showConfetti, setShowConfetti] = useState(false)
   const [showerTrigger, setShowerTrigger] = useState(false)
   const [showerCoords, setShowerCoords] = useState({ x: 0, y: 0 })
+  const [outcomeMessage, setOutcomeMessage] = useState<{ type: 'win' | 'loss'; text: string } | null>(null)
+
+  // Interruption overlay states
+  const [accumulatedSpent, setAccumulatedSpent] = useState(0)
+  const [overlayOpen, setOverlayOpen] = useState(false)
+  const [overlayAmount, setOverlayAmount] = useState(0)
 
   const timeoutRef = useRef<any>(null)
   const tickIntervalRef = useRef<any>(null)
@@ -47,6 +54,7 @@ export const DoubleGame: React.FC = () => {
     setInsight(null)
     setIsLoss(false)
     setShowConfetti(false)
+    setOutcomeMessage(null)
 
     // Trigger tick sounds during rolling
     let tickCount = 0
@@ -92,6 +100,11 @@ export const DoubleGame: React.FC = () => {
         setShowerCoords({ x: e.clientX || window.innerWidth / 2, y: e.clientY || window.innerHeight / 2 })
         setShowerTrigger(true)
 
+        setOutcomeMessage({
+          type: 'win',
+          text: `GANHOU R$ ${winAmount.toFixed(2).replace('.', ',')}!`
+        })
+
         setInsight(
           `🟢 VOCÊ VENCEU A SIMULAÇÃO! Porém, atente-se à "Falácia do Jogador". Vencer uma rodada não aumenta a probabilidade de vencer a próxima; os eventos são independentes. Casas de aposta mostram históricos e listas de rodadas anteriores de propósito para tentar fazer seu cérebro identificar "padrões" inexistentes no azar.`
         )
@@ -100,10 +113,28 @@ export const DoubleGame: React.FC = () => {
         setIsLoss(true)
         incrementSimulatedStats(cost, 20)
 
+        setOutcomeMessage({
+          type: 'loss',
+          text: `PERDEU R$ ${cost.toFixed(2).replace('.', ',')}!`
+        })
+
         setInsight(
           `🔴 VOCÊ PERDEU. Se você estivesse usando a tática clássica do "Martingale" (dobrar a aposta após perder para tentar recuperar), seu prejuízo agora seria de 200 moedas virtuais. Essa tática matematicamente quebra qualquer carteira muito rápido por causa do crescimento exponencial e limites da mesa. O Double é desenhado especificamente para explorar esse viés lógico.`
         )
       }
+
+      // Track session spent for cognitive interruption
+      const newAccumulated = accumulatedSpent + cost
+      if (newAccumulated >= 10) {
+        setOverlayAmount(newAccumulated)
+        setAccumulatedSpent(0)
+        setTimeout(() => {
+          setOverlayOpen(true)
+        }, 1200)
+      } else {
+        setAccumulatedSpent(newAccumulated)
+      }
+
     }, 2000)
   }
 
@@ -121,14 +152,61 @@ export const DoubleGame: React.FC = () => {
           onComplete={() => setShowerTrigger(false)}
         />
 
+        {/* Win/Loss Screen Flash overlays */}
+        <AnimatePresence>
+          {isLoss && (
+            <motion.div
+              initial={{ opacity: 0.8 }}
+              animate={{ opacity: 0 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 1.2 }}
+              className="absolute inset-0 bg-red-600/15 border-2 border-neon-red glow-red rounded-2xl pointer-events-none z-30"
+            />
+          )}
+          {showConfetti && (
+            <motion.div
+              initial={{ opacity: 0.8 }}
+              animate={{ opacity: 0 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 1.2 }}
+              className="absolute inset-0 bg-emerald-600/15 border-2 border-neon-green glow-green rounded-2xl pointer-events-none z-30"
+            />
+          )}
+        </AnimatePresence>
+
+        {/* Cognitive Interruption Overlay */}
+        <CognitiveOverlay 
+          isOpen={overlayOpen}
+          amountSpent={overlayAmount}
+          onClose={() => setOverlayOpen(false)}
+        />
+
         <div className="text-center space-y-1">
           <h3 className="text-base font-extrabold text-white uppercase tracking-wider">Double da Dopamina</h3>
           <p className="text-[10px] text-zinc-400">Custo da rodada: 100 moedas fictícias</p>
         </div>
 
-        <div className="flex justify-between items-center bg-zinc-950 border border-cyber-border rounded-xl px-4 py-2 text-xs">
-          <span className="text-[9px] text-zinc-500 font-extrabold uppercase">Histórico:</span>
-          <div className="flex gap-2">
+        <div className="relative flex justify-between items-center bg-zinc-950 border border-cyber-border rounded-xl px-4 py-3 text-xs min-h-[50px]">
+          <AnimatePresence mode="wait">
+            {outcomeMessage && (
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0 }}
+                className={cn(
+                  "absolute top-1 left-4 px-3 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider border select-none",
+                  outcomeMessage.type === 'win' 
+                    ? 'bg-emerald-950/40 border-emerald-500 text-neon-green glow-green' 
+                    : 'bg-red-950/40 border-red-500 text-neon-red glow-red'
+                )}
+              >
+                {outcomeMessage.text}
+              </motion.div>
+            )}
+          </AnimatePresence>
+          
+          <span className="text-[9px] text-zinc-500 font-extrabold uppercase mt-2">Histórico:</span>
+          <div className="flex gap-2 mt-2">
             {rollHistory.map((emoji, idx) => (
               <span key={idx} className="text-base">{emoji}</span>
             ))}

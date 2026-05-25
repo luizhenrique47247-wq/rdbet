@@ -5,18 +5,27 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Button } from './ui/Button'
 import { Modal } from './ui/Modal'
 import { BalanceCounter } from './ui/BalanceCounter'
+import { casinoAudio } from '../utils/audioEngine'
 
 export const Header: React.FC = () => {
-  const { balance, addBalance } = useStore()
+  const { balance, addBalance, registered, setTab } = useStore()
   const [showLoadModal, setShowLoadModal] = useState(false)
   const [loadedAmount, setLoadedAmount] = useState<number | null>(null)
 
   const handleAddFictiveFunds = () => {
+    casinoAudio.playWinMelody()
     addBalance(100)
     setLoadedAmount(100)
     setTimeout(() => {
       setLoadedAmount(null)
     }, 2000)
+  }
+
+  const handleHeaderRegister = () => {
+    casinoAudio.playTick()
+    setTab('inicio')
+    // Dispatch a custom event to open the registration modal in Inicio page!
+    window.dispatchEvent(new CustomEvent('open-register-modal'))
   }
 
   return (
@@ -27,33 +36,45 @@ export const Header: React.FC = () => {
           <div className="w-8 h-8 rounded-lg bg-emerald-950/30 border border-neon-green/40 flex items-center justify-center text-neon-green glow-green">
             <Shield size={18} className="stroke-[2.5]" />
           </div>
-          <span className="font-black text-xl tracking-wide text-white logo-font">
+          <span className="font-black text-xl tracking-wide text-white logo-font select-none">
             RD<span className="text-neon-green">BET</span>
           </span>
         </div>
 
-        {/* Balance Area */}
+        {/* Balance or Register Area */}
         <div className="flex items-center">
-          {/* Balance Widget Capsule */}
-          <div 
-            id="header-balance-container"
-            className="flex items-center bg-[#12161a] border border-cyber-border rounded-full pl-3.5 pr-1 py-1 gap-2.5 shadow-[inset_0_1px_3px_rgba(0,0,0,0.8)]"
-          >
-            <div className="flex flex-col items-start leading-none pr-1">
-              <span className="text-[7px] text-zinc-500 font-black uppercase tracking-widest">
-                Banca Virtual
-              </span>
-              <BalanceCounter value={balance} />
-            </div>
-            
+          {!registered ? (
             <button
-              onClick={() => setShowLoadModal(true)}
-              className="w-7 h-7 rounded-full bg-neon-green hover:bg-neon-green-glow text-black flex items-center justify-center transition-all cursor-pointer shadow-lg shadow-neon-green/20"
-              title="Carregar Moedas Fictícias"
+              onClick={handleHeaderRegister}
+              className="px-4 py-2.5 bg-neon-green hover:bg-neon-green-glow text-black font-black text-xs uppercase tracking-widest rounded-lg transition-all cursor-pointer shadow-lg shadow-neon-green/20"
             >
-              <Plus size={16} className="stroke-[3]" />
+              CADASTRAR
             </button>
-          </div>
+          ) : (
+            /* Balance Widget Capsule */
+            <div 
+              id="header-balance-container"
+              className="flex items-center bg-[#12161a] border border-cyber-border rounded-full pl-3.5 pr-1 py-1 gap-2.5 shadow-[inset_0_1px_3px_rgba(0,0,0,0.8)]"
+            >
+              <div className="flex flex-col items-start leading-none pr-1">
+                <span className="text-[7px] text-zinc-500 font-black uppercase tracking-widest">
+                  Banca Virtual
+                </span>
+                <BalanceCounter value={balance} />
+              </div>
+              
+              <button
+                onClick={() => {
+                  casinoAudio.playTick()
+                  setShowLoadModal(true)
+                }}
+                className="w-7 h-7 rounded-full bg-neon-green hover:bg-neon-green-glow text-black flex items-center justify-center transition-all cursor-pointer shadow-lg shadow-neon-green/20"
+                title="Carregar Moedas Fictícias"
+              >
+                <Plus size={16} className="stroke-[3]" />
+              </button>
+            </div>
+          )}
         </div>
       </header>
 

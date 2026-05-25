@@ -1,5 +1,6 @@
 class CasinoAudioEngine {
   private ctx: AudioContext | null = null
+  private volumeFactor = 1.0
 
   private init() {
     if (!this.ctx) {
@@ -10,11 +11,16 @@ class CasinoAudioEngine {
     }
   }
 
+  setVolumeFactor(factor: number) {
+    // Ensure factor is between 0 and 1
+    this.volumeFactor = Math.max(0, Math.min(1, factor))
+  }
+
   // Quick crisp UI click tick
   playTick() {
     try {
       this.init()
-      if (!this.ctx) return
+      if (!this.ctx || this.volumeFactor <= 0) return
       const osc = this.ctx.createOscillator()
       const gain = this.ctx.createGain()
       
@@ -25,7 +31,7 @@ class CasinoAudioEngine {
       osc.frequency.setValueAtTime(400, this.ctx.currentTime)
       osc.frequency.exponentialRampToValueAtTime(1000, this.ctx.currentTime + 0.04)
 
-      gain.gain.setValueAtTime(0.06, this.ctx.currentTime)
+      gain.gain.setValueAtTime(0.06 * this.volumeFactor, this.ctx.currentTime)
       gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.05)
 
       osc.start()
@@ -39,7 +45,7 @@ class CasinoAudioEngine {
   playCoinChime() {
     try {
       this.init()
-      if (!this.ctx) return
+      if (!this.ctx || this.volumeFactor <= 0) return
       const osc = this.ctx.createOscillator()
       const gain = this.ctx.createGain()
       
@@ -50,7 +56,7 @@ class CasinoAudioEngine {
       osc.frequency.setValueAtTime(987.77, this.ctx.currentTime) // B5
       osc.frequency.exponentialRampToValueAtTime(1318.51, this.ctx.currentTime + 0.08) // E6
 
-      gain.gain.setValueAtTime(0.04, this.ctx.currentTime)
+      gain.gain.setValueAtTime(0.04 * this.volumeFactor, this.ctx.currentTime)
       gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.12)
 
       osc.start()
@@ -64,7 +70,7 @@ class CasinoAudioEngine {
   playWinMelody() {
     try {
       this.init()
-      if (!this.ctx) return
+      if (!this.ctx || this.volumeFactor <= 0) return
       
       const now = this.ctx.currentTime
       const playTone = (freq: number, startTime: number, duration: number) => {
@@ -78,7 +84,7 @@ class CasinoAudioEngine {
         osc.type = 'sine'
         osc.frequency.setValueAtTime(freq, startTime)
         
-        gain.gain.setValueAtTime(0.06, startTime)
+        gain.gain.setValueAtTime(0.06 * this.volumeFactor, startTime)
         gain.gain.exponentialRampToValueAtTime(0.001, startTime + duration - 0.02)
         
         osc.start(startTime)
@@ -99,7 +105,7 @@ class CasinoAudioEngine {
   playLossSweep() {
     try {
       this.init()
-      if (!this.ctx) return
+      if (!this.ctx || this.volumeFactor <= 0) return
       const osc = this.ctx.createOscillator()
       const gain = this.ctx.createGain()
       
@@ -110,7 +116,7 @@ class CasinoAudioEngine {
       osc.frequency.setValueAtTime(220, this.ctx.currentTime)
       osc.frequency.exponentialRampToValueAtTime(65, this.ctx.currentTime + 0.25)
 
-      gain.gain.setValueAtTime(0.04, this.ctx.currentTime)
+      gain.gain.setValueAtTime(0.04 * this.volumeFactor, this.ctx.currentTime)
       gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.3)
 
       osc.start()
@@ -124,7 +130,7 @@ class CasinoAudioEngine {
   playWarning() {
     try {
       this.init()
-      if (!this.ctx) return
+      if (!this.ctx || this.volumeFactor <= 0) return
       const osc = this.ctx.createOscillator()
       const gain = this.ctx.createGain()
       
@@ -134,7 +140,7 @@ class CasinoAudioEngine {
       osc.type = 'square'
       osc.frequency.setValueAtTime(150, this.ctx.currentTime)
       
-      gain.gain.setValueAtTime(0.05, this.ctx.currentTime)
+      gain.gain.setValueAtTime(0.05 * this.volumeFactor, this.ctx.currentTime)
       gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.18)
 
       osc.start()

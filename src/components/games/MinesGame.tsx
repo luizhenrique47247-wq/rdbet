@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react'
 import { useStore } from '../../store/useStore'
 import { Bomb, Gem, ShieldAlert } from 'lucide-react'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import { Button } from '../ui/Button'
 import { Card } from '../ui/Card'
 import { Badge } from '../ui/Badge'
@@ -10,6 +10,7 @@ import { casinoAudio } from '../../utils/audioEngine'
 import { CoinShower } from '../animations/CoinShower'
 import { Confetti } from '../ui/Confetti'
 import { LossShake } from '../animations/LossShake'
+import { CognitiveOverlay } from '../ui/CognitiveOverlay'
 
 export const MinesGame: React.FC = () => {
   const { spendBalance, addBalance, incrementSimulatedStats } = useStore()
@@ -23,8 +24,27 @@ export const MinesGame: React.FC = () => {
   const [showConfetti, setShowConfetti] = useState(false)
   const [showerTrigger, setShowerTrigger] = useState(false)
   const [showerCoords, setShowerCoords] = useState({ x: 0, y: 0 })
+  const [outcomeMessage, setOutcomeMessage] = useState<{ type: 'win' | 'loss'; text: string } | null>(null)
+
+  // Interruption overlay states
+  const [accumulatedSpent, setAccumulatedSpent] = useState(0)
+  const [overlayOpen, setOverlayOpen] = useState(false)
+  const [overlayAmount, setOverlayAmount] = useState(0)
 
   const minePositionsRef = useRef<number[]>([])
+
+  const triggerInterruption = (costSpent: number) => {
+    const newAccumulated = accumulatedSpent + costSpent
+    if (newAccumulated >= 10) {
+      setOverlayAmount(newAccumulated)
+      setAccumulatedSpent(0)
+      setTimeout(() => {
+        setOverlayOpen(true)
+      }, 1500)
+    } else {
+      setAccumulatedSpent(newAccumulated)
+    }
+  }
 
   const initializeGame = () => {
     const cost = 100
@@ -38,6 +58,7 @@ export const MinesGame: React.FC = () => {
     setInsight(null)
     setIsLoss(false)
     setShowConfetti(false)
+    setOutcomeMessage(null)
     incrementSimulatedStats(cost, 40)
 
     const mines: number[] = []
@@ -74,9 +95,17 @@ export const MinesGame: React.FC = () => {
       setIsLoss(true)
       setGameActive(false)
       setBoard(updatedBoard.map(c => c.isMine ? { ...c, revealed: true } : c))
+      
+      setOutcomeMessage({
+        type: 'loss',
+        text: `EXPLODIU! PERDEU R$ 100,00`
+      })
+
       setInsight(
         "💥 COMPULSÃO DO 'SÓ MAIS UM': Você acertou um Gatilho (bomba) e perdeu seu acumulador! O Mines explora a ganância em cascata. Cada acerto aumenta o multiplicador e injeta dopamina, fazendo você ignorar o risco estatístico crescente de explodir. Casas de aposta utilizam isso para fazer com que o usuário se sinta invencível até que, estatisticamente, o desastre aconteça."
       )
+
+      triggerInterruption(100)
     } else {
       casinoAudio.playCoinChime()
       const nextCount = revealedCount + 1
@@ -89,10 +118,19 @@ export const MinesGame: React.FC = () => {
         casinoAudio.playWinMelody()
         setGameActive(false)
         setShowConfetti(true)
-        addBalance(Math.round(100 * nextMult))
+        const payout = Math.round(100 * nextMult)
+        addBalance(payout)
+
+        setOutcomeMessage({
+          type: 'win',
+          text: `LIMPOU O CAMPO! GANHOU R$ ${payout.toFixed(2).replace('.', ',')}`
+        })
+
         setInsight(
           "🏆 INCRÍVEL! Você limpou a maior parte da área de risco. Porém, a probabilidade de chegar a esse ponto sem explodir é menor que 3%. Não confunda uma sorte pontual simulada com consistência de lucros. No longo prazo, a matemática do cassino é blindada."
         )
+
+        triggerInterruption(100)
       }
     }
   }
@@ -111,9 +149,16 @@ export const MinesGame: React.FC = () => {
     setShowerCoords({ x: e.clientX || window.innerWidth / 2, y: e.clientY || window.innerHeight / 2 })
     setShowerTrigger(true)
 
+    setOutcomeMessage({
+      type: 'win',
+      text: `RETIROU COM SUCESSO! GANHOU R$ ${winAmount.toFixed(2).replace('.', ',')}`
+    })
+
     setInsight(
       `🎉 RETIRADO COM SUCESSO! Você garantiu ${multiplier}x de retorno virtual. Note como cada clique no tabuleiro causava uma mini oscilação de nervosismo e expectativa no cérebro. Esse ciclo é o motor do vício em apostas. Vencer com sucesso hoje não altera a desvantagem matemática da próxima simulação.`
     )
+
+    triggerInterruption(100)
   }
 
   return (
@@ -130,10 +175,60 @@ export const MinesGame: React.FC = () => {
           onComplete={() => setShowerTrigger(false)}
         />
 
+        {/* Win/Loss Screen Flash overlays */}
+        <AnimatePresence>
+          {isLoss && (
+            <motion.div
+              initial={{ opacity: 0.8 }}
+              animate={{ opacity: 0 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 1.2 }}
+              className="absolute inset-0 bg-red-600/15 border-2 border-neon-red glow-red rounded-2xl pointer-events-none z-30"
+            />
+          )}
+          {showConfetti && (
+            <motion.div
+              initial={{ opacity: 0.8 }}
+              animate={{ opacity: 0 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 1.2 }}
+              className="absolute inset-0 bg-emerald-600/15 border-2 border-neon-green glow-green rounded-2xl pointer-events-none z-30"
+            />
+          )}
+        </AnimatePresence>
+
+        {/* Cognitive Interruption Overlay */}
+        <CognitiveOverlay 
+          isOpen={overlayOpen}
+          amountSpent={overlayAmount}
+          onClose={() => setOverlayOpen(false)}
+        />
+
         <div className="text-center space-y-1">
           <h3 className="text-base font-extrabold text-white uppercase tracking-wider">Mines da Compulsão</h3>
           <p className="text-[10px] text-zinc-400">Custo da rodada: 100 moedas fictícias | 5 Bombas Ocultas</p>
         </div>
+
+        {/* Result Message Overlay */}
+        <AnimatePresence>
+          {outcomeMessage && (
+            <div className="flex justify-center select-none">
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0 }}
+                className={cn(
+                  "px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-wider border text-center",
+                  outcomeMessage.type === 'win' 
+                    ? 'bg-emerald-950/40 border-emerald-500 text-neon-green glow-green' 
+                    : 'bg-red-950/40 border-red-500 text-neon-red glow-red'
+                )}
+              >
+                {outcomeMessage.text}
+              </motion.div>
+            </div>
+          )}
+        </AnimatePresence>
 
         {!gameActive && board.length === 0 ? (
           <Button

@@ -9,6 +9,8 @@ import { casinoAudio } from '../../utils/audioEngine'
 import { CoinShower } from '../animations/CoinShower'
 import { Confetti } from '../ui/Confetti'
 import { LossShake } from '../animations/LossShake'
+import { CognitiveOverlay } from '../ui/CognitiveOverlay'
+import { cn } from '../../utils/cn'
 
 export const SlotsGame: React.FC = () => {
   const { spendBalance, addBalance, incrementSimulatedStats } = useStore()
@@ -20,6 +22,11 @@ export const SlotsGame: React.FC = () => {
   const [showConfetti, setShowConfetti] = useState(false)
   const [showerTrigger, setShowerTrigger] = useState(false)
   const [showerCoords, setShowerCoords] = useState({ x: 0, y: 0 })
+  const [outcomeMessage, setOutcomeMessage] = useState<{ type: 'win' | 'loss'; text: string } | null>(null)
+
+  const [accumulatedSpent, setAccumulatedSpent] = useState(0)
+  const [overlayOpen, setOverlayOpen] = useState(false)
+  const [overlayAmount, setOverlayAmount] = useState(0)
 
   const intervalRef = useRef<any>(null)
   const timeoutRef = useRef<any>(null)
@@ -53,6 +60,7 @@ export const SlotsGame: React.FC = () => {
     setInsight(null)
     setIsLoss(false)
     setShowConfetti(false)
+    setOutcomeMessage(null)
 
     let spinTicks = 0
     intervalRef.current = setInterval(() => {
@@ -107,6 +115,11 @@ export const SlotsGame: React.FC = () => {
           setShowerCoords({ x: e.clientX || window.innerWidth / 2, y: e.clientY || window.innerHeight / 2 })
           setShowerTrigger(true)
 
+          setOutcomeMessage({
+            type: 'win',
+            text: `GANHOU R$ ${reward.toFixed(2).replace('.', ',')}!`
+          })
+
           setInsight(
             `💰 VOCÊ VENCEU A SIMULAÇÃO! Ganhou +500 moedas virtuais. Na vida real, grandes vitórias esporádicas reiniciam a tolerância do cérebro, fazendo com que você esqueça as dezenas de perdas anteriores. Esse fenômeno é o "Viés de Sobrevivência": lembramos da vitória brilhante, mas ignoramos o saldo geral negativo.`
           )
@@ -114,6 +127,11 @@ export const SlotsGame: React.FC = () => {
           casinoAudio.playLossSweep()
           setIsLoss(true)
           incrementSimulatedStats(cost, 15)
+
+          setOutcomeMessage({
+            type: 'loss',
+            text: `PERDEU R$ ${cost.toFixed(2).replace('.', ',')}!`
+          })
 
           if (isNearMiss) {
             setInsight(
@@ -124,6 +142,18 @@ export const SlotsGame: React.FC = () => {
               `⚠️ PERDA FRIA: Três símbolos totalmente distintos. Em um cassino real, o som festivo diminui um pouco, mas a tela pisca incentivando o próximo clique. Você acabou de perder R$ 50 fictícios e 15 segundos de vida útil.`
             )
           }
+        }
+
+        // Track session spent for cognitive interruption
+        const newAccumulated = accumulatedSpent + cost
+        if (newAccumulated >= 10) {
+          setOverlayAmount(newAccumulated)
+          setAccumulatedSpent(0)
+          setTimeout(() => {
+            setOverlayOpen(true)
+          }, 1200)
+        } else {
+          setAccumulatedSpent(newAccumulated)
         }
       }
     }, 150)
@@ -143,12 +173,59 @@ export const SlotsGame: React.FC = () => {
           onComplete={() => setShowerTrigger(false)}
         />
 
+        {/* Win/Loss Screen Flash overlays */}
+        <AnimatePresence>
+          {isLoss && (
+            <motion.div
+              initial={{ opacity: 0.8 }}
+              animate={{ opacity: 0 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 1.2 }}
+              className="absolute inset-0 bg-red-600/15 border-2 border-neon-red glow-red rounded-2xl pointer-events-none z-30"
+            />
+          )}
+          {showConfetti && (
+            <motion.div
+              initial={{ opacity: 0.8 }}
+              animate={{ opacity: 0 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 1.2 }}
+              className="absolute inset-0 bg-emerald-600/15 border-2 border-neon-green glow-green rounded-2xl pointer-events-none z-30"
+            />
+          )}
+        </AnimatePresence>
+
+        {/* Cognitive Interruption Overlay */}
+        <CognitiveOverlay 
+          isOpen={overlayOpen}
+          amountSpent={overlayAmount}
+          onClose={() => setOverlayOpen(false)}
+        />
+
         <div className="text-center space-y-1">
           <h3 className="text-base font-extrabold text-white uppercase tracking-wider">Slots da Verdade</h3>
           <p className="text-[10px] text-zinc-400">Custo da rodada: 50 moedas fictícias</p>
         </div>
 
-        <div className="flex justify-center gap-3 py-6 bg-zinc-950 border border-cyber-border rounded-xl">
+        <div className="relative flex justify-center gap-3 py-6 bg-zinc-950 border border-cyber-border rounded-xl">
+          <AnimatePresence mode="wait">
+            {outcomeMessage && (
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0 }}
+                className={cn(
+                  "absolute top-2 px-3 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider border select-none",
+                  outcomeMessage.type === 'win' 
+                    ? 'bg-emerald-950/40 border-emerald-500 text-neon-green glow-green' 
+                    : 'bg-red-950/40 border-red-500 text-neon-red glow-red'
+                )}
+              >
+                {outcomeMessage.text}
+              </motion.div>
+            )}
+          </AnimatePresence>
+
           {reels.map((emoji, index) => (
             <motion.div 
               key={index}

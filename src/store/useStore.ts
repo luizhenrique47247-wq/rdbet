@@ -19,6 +19,15 @@ interface AppState {
   historicalStats: SimulatedStat[]
   cooldownActive: boolean
   cooldownTimeLeft: number // in seconds
+
+  // Onboarding & Desmame
+  registered: boolean
+  userName: string
+  selectedPlan: '30' | '60' | 'unlimited' | null
+  simulatedDay: number
+  registrationDate: string | null
+  unclaimedDays: number // daily reward accumulation (max 3 days)
+  claimedToday: boolean
   
   // Actions
   setTab: (tab: 'inicio' | 'missoes' | 'jogar' | 'extrato' | 'conta') => void
@@ -34,23 +43,37 @@ interface AppState {
   setCooldown: (seconds: number) => void
   tickCooldown: () => void
   resetStats: () => void
+
+  // Onboarding & On-day Actions
+  registerUser: (name: string, plan: '30' | '60' | 'unlimited') => void
+  advanceDay: () => void
+  claimDailyReward: () => number // returns amount claimed
 }
 
 export const useStore = create<AppState>((set, get) => ({
   currentTab: 'inicio',
-  balance: 95, // Fictive balance matching screenshots
-  xp: 50,      // Matches progress bar in Image 2
-  level: 3,
-  streak: 1,   // Matches Dias Limpos in Image 5
+  balance: 0, // Starts at 0 before registration
+  xp: 0,      // Starts at 0 before registration
+  level: 1,
+  streak: 0,   // Starts at 0 clean days
   checkedIn: false,
   modoCritico: false,
   cooldownActive: false,
   cooldownTimeLeft: 0,
-  simulatedBetsCount: 24,
-  simulatedMoneyLost: 1200,
-  simulatedTimeLost: 720,
-  realMoneySaved: 95, // Matches Protegido in Image 5
-  realBetsAvoided: 9,
+  simulatedBetsCount: 0,
+  simulatedMoneyLost: 0,
+  simulatedTimeLost: 0,
+  realMoneySaved: 0,
+  realBetsAvoided: 0,
+
+  // Onboarding & Desmame Initial values
+  registered: false,
+  userName: '',
+  selectedPlan: null,
+  simulatedDay: 1,
+  registrationDate: null,
+  unclaimedDays: 0,
+  claimedToday: false,
 
   
   // Mock emotional logs to show history
@@ -302,10 +325,10 @@ export const useStore = create<AppState>((set, get) => ({
   }),
 
   resetStats: () => set((state) => ({
-    balance: 95,
-    xp: 50,
-    level: 3,
-    streak: 1,
+    balance: 0,
+    xp: 0,
+    level: 1,
+    streak: 0,
     checkedIn: false,
     simulatedBetsCount: 0,
     simulatedMoneyLost: 0,
@@ -313,6 +336,55 @@ export const useStore = create<AppState>((set, get) => ({
     realMoneySaved: 0,
     realBetsAvoided: 0,
     emotionalDiary: [],
-    missions: state.missions.map(m => ({ ...m, completed: false }))
-  }))
+    missions: state.missions.map(m => ({ ...m, completed: false })),
+    registered: false,
+    userName: '',
+    selectedPlan: null,
+    simulatedDay: 1,
+    registrationDate: null,
+    unclaimedDays: 0,
+    claimedToday: false
+  })),
+
+  registerUser: (name, plan) => set({
+    registered: true,
+    userName: name,
+    selectedPlan: plan,
+    registrationDate: new Date().toISOString(),
+    balance: 100,
+    xp: 50,
+    level: 3,
+    streak: 0,
+    simulatedDay: 1,
+    claimedToday: false,
+    unclaimedDays: 0,
+    realMoneySaved: 0
+  }),
+
+  advanceDay: () => set((state) => {
+    const wasClaimed = state.claimedToday
+    return {
+      simulatedDay: state.simulatedDay + 1,
+      unclaimedDays: wasClaimed ? state.unclaimedDays : Math.min(3, state.unclaimedDays + 1),
+      claimedToday: false,
+      streak: state.streak + 1,
+      realMoneySaved: state.realMoneySaved + 50
+    }
+  }),
+
+  claimDailyReward: () => {
+    const state = get()
+    if (state.claimedToday) return 0
+
+    const daysToClaim = Math.min(3, state.unclaimedDays + 1)
+    const payout = daysToClaim * 50
+
+    set((s) => ({
+      balance: s.balance + payout,
+      claimedToday: true,
+      unclaimedDays: 0
+    }))
+
+    return payout
+  }
 }))

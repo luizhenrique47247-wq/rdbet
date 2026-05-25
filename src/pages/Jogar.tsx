@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { useStore } from '../store/useStore'
-import { Dices, ArrowLeft, Ban, LayoutGrid } from 'lucide-react'
+import { Dices, ArrowLeft, Ban, LayoutGrid, HeartPulse } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Card } from '../components/ui/Card'
 import { cn } from '../utils/cn'
@@ -9,14 +9,16 @@ import { CrashGame } from '../components/games/CrashGame'
 import { RoletaGame } from '../components/games/RoletaGame'
 import { DoubleGame } from '../components/games/DoubleGame'
 import { MinesGame } from '../components/games/MinesGame'
+import { DiceGame } from '../components/games/DiceGame'
+import { SaudeMental } from '../components/games/SaudeMental'
 import { casinoAudio } from '../utils/audioEngine'
 
-type GameType = 'slots' | 'crash' | 'roleta' | 'double' | 'mines' | null
+type GameType = 'slots' | 'crash' | 'roleta' | 'double' | 'mines' | 'dice' | 'mental' | null
 
 export const Jogar: React.FC = () => {
   const { cooldownActive, cooldownTimeLeft } = useStore()
   const [activeGame, setActiveGame] = useState<GameType>(null)
-  const [category, setCategory] = useState<'todos' | 'slots' | 'double' | 'mines'>('todos')
+  const [category, setCategory] = useState<'todos' | 'slots' | 'double' | 'mines' | 'dice' | 'mental'>('todos')
 
   const formatCooldown = (totalSeconds: number) => {
     const hrs = Math.floor(totalSeconds / 3600)
@@ -30,7 +32,7 @@ export const Jogar: React.FC = () => {
     setActiveGame(game)
   }
 
-  const changeCategory = (cat: 'todos' | 'slots' | 'double' | 'mines') => {
+  const changeCategory = (cat: 'todos' | 'slots' | 'double' | 'mines' | 'dice' | 'mental') => {
     casinoAudio.playTick()
     setCategory(cat)
   }
@@ -94,6 +96,50 @@ export const Jogar: React.FC = () => {
 
             {/* Horizontal Scroll Carousel */}
             <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-none snap-x snap-mandatory">
+              {/* Saúde Mental Card */}
+              <Card className="min-w-[90%] snap-start p-5 bg-[#12161a] border-emerald-500/20 shadow-[0_0_15px_rgba(16,185,129,0.06)] relative overflow-hidden flex flex-col justify-between h-40 shrink-0 border-l-2 border-l-emerald-500">
+                <div className="absolute top-0 right-0 p-3 text-emerald-900 opacity-20 translate-x-3 -translate-y-3 pointer-events-none select-none">
+                  <HeartPulse size={96} className="stroke-[1.5]" />
+                </div>
+                <div className="space-y-1.5 z-10">
+                  <span className="bg-emerald-600 text-white font-black text-[8px] tracking-widest px-2 py-1.5 rounded uppercase select-none">
+                    TERAPÊUTICO
+                  </span>
+                  <h3 className="text-xl font-black text-white uppercase tracking-tight mt-1">Espaço Saúde Mental</h3>
+                  <p className="text-[10px] text-zinc-400 max-w-[80%] leading-relaxed font-medium">
+                    Exercícios de respiração, diário de gatilhos e quiz premiado de dopamina.
+                  </p>
+                </div>
+                <button
+                  onClick={() => selectGame('mental')}
+                  className="w-28 py-2 bg-neon-green text-black font-black text-[10px] tracking-wider uppercase rounded-lg flex items-center justify-center gap-1.5 cursor-pointer hover:bg-neon-green-glow transition-colors shadow-lg z-10"
+                >
+                  ABRIR ESPAÇO <span className="text-[8px] leading-none">▶</span>
+                </button>
+              </Card>
+
+              {/* Dice RD Card */}
+              <Card className="min-w-[90%] snap-start p-5 bg-[#12161a] border-blue-500/20 shadow-[0_0_15px_rgba(59,130,246,0.06)] relative overflow-hidden flex flex-col justify-between h-40 shrink-0 border-l-2 border-l-blue-500">
+                <div className="absolute top-0 right-0 p-3 text-blue-900 opacity-20 translate-x-3 -translate-y-3 pointer-events-none select-none">
+                  <span className="text-8xl">🎲</span>
+                </div>
+                <div className="space-y-1.5 z-10">
+                  <span className="bg-blue-600 text-white font-black text-[8px] tracking-widest px-2 py-1.5 rounded uppercase select-none">
+                    NOVO
+                  </span>
+                  <h3 className="text-xl font-black text-white uppercase tracking-tight mt-1">Dice da Ilusão</h3>
+                  <p className="text-[10px] text-zinc-400 max-w-[80%] leading-relaxed font-medium">
+                    Ajuste sua margem de chance e role o dado. Entenda a variância estatística.
+                  </p>
+                </div>
+                <button
+                  onClick={() => selectGame('dice')}
+                  className="w-28 py-2 bg-white text-black font-black text-[10px] tracking-wider uppercase rounded-lg flex items-center justify-center gap-1.5 cursor-pointer hover:bg-zinc-200 transition-colors shadow-lg z-10"
+                >
+                  JOGAR <span className="text-[8px] leading-none">▶</span>
+                </button>
+              </Card>
+
               {/* Slots RD Card */}
               <Card className="min-w-[90%] snap-start p-5 bg-[#12161a] border-purple-500/20 shadow-[0_0_15px_rgba(168,85,247,0.06)] relative overflow-hidden flex flex-col justify-between h-40 shrink-0 border-l-2 border-l-purple-500">
                 <div className="absolute top-0 right-0 p-3 text-purple-900 opacity-20 translate-x-3 -translate-y-3 pointer-events-none select-none">
@@ -154,6 +200,30 @@ export const Jogar: React.FC = () => {
                 TODOS
               </button>
               <button
+                onClick={() => changeCategory('mental')}
+                className={cn(
+                  "px-4 py-2 rounded-full font-black text-[10px] tracking-wider uppercase transition-all flex items-center gap-1.5 cursor-pointer shrink-0 border",
+                  category === 'mental'
+                    ? 'bg-emerald-500/20 border-emerald-500/50 text-[#34d399]'
+                    : 'bg-[#12161a] border-cyber-border text-zinc-400 hover:border-zinc-700'
+                )}
+              >
+                <HeartPulse size={12} />
+                SAÚDE MENTAL
+              </button>
+              <button
+                onClick={() => changeCategory('dice')}
+                className={cn(
+                  "px-4 py-2 rounded-full font-black text-[10px] tracking-wider uppercase transition-all flex items-center gap-1.5 cursor-pointer shrink-0 border",
+                  category === 'dice'
+                    ? 'bg-blue-500/20 border-blue-500/50 text-[#60a5fa]'
+                    : 'bg-[#12161a] border-cyber-border text-zinc-400 hover:border-zinc-700'
+                )}
+              >
+                <span className="text-xs leading-none">🎲</span>
+                DICE
+              </button>
+              <button
                 onClick={() => changeCategory('slots')}
                 className={cn(
                   "px-4 py-2 rounded-full font-black text-[10px] tracking-wider uppercase transition-all flex items-center gap-1.5 cursor-pointer shrink-0 border",
@@ -198,6 +268,35 @@ export const Jogar: React.FC = () => {
               </h3>
 
               <div className="grid grid-cols-3 gap-3">
+                {/* Saúde Mental Card in Grid */}
+                {(category === 'todos' || category === 'mental') && (
+                  <button
+                    onClick={() => selectGame('mental')}
+                    className="aspect-square bg-[#12161a] border border-emerald-500/20 rounded-xl p-3 flex flex-col justify-between items-start text-left cursor-pointer hover:border-emerald-500/50 hover:shadow-[0_0_15px_rgba(16,185,129,0.15)] transition-all relative overflow-hidden group"
+                  >
+                    <span className="absolute top-1.5 right-1.5 bg-emerald-600 text-white font-black text-[5px] tracking-widest px-1 py-0.5 rounded uppercase scale-90 select-none">
+                      SOS
+                    </span>
+                    <HeartPulse size={24} className="mt-1 text-emerald-500 opacity-60 group-hover:opacity-100 transition-opacity" />
+                    <span className="text-[8px] font-black tracking-widest text-emerald-400 uppercase leading-none mt-auto block">
+                      SAÚDE MENTAL
+                    </span>
+                  </button>
+                )}
+
+                {/* Dice Card in grid */}
+                {(category === 'todos' || category === 'dice') && (
+                  <button
+                    onClick={() => selectGame('dice')}
+                    className="aspect-square bg-[#12161a] border border-cyber-border rounded-xl p-3 flex flex-col justify-between items-start text-left cursor-pointer hover:border-blue-500/50 hover:shadow-[0_0_15px_rgba(59,130,246,0.15)] transition-all relative overflow-hidden group"
+                  >
+                    <span className="text-3xl mt-1 select-none opacity-40 group-hover:opacity-80 transition-opacity">🎲</span>
+                    <span className="text-[8px] font-black tracking-widest text-[#60a5fa] uppercase leading-none mt-auto block">
+                      DADO REAL
+                    </span>
+                  </button>
+                )}
+
                 {/* Slots Card in grid */}
                 {(category === 'todos' || category === 'slots') && (
                   <button
@@ -239,6 +338,19 @@ export const Jogar: React.FC = () => {
                     </span>
                   </button>
                 )}
+
+                {/* Roleta Card in grid */}
+                {(category === 'todos' || category === 'double') && (
+                  <button
+                    onClick={() => selectGame('roleta')}
+                    className="aspect-square bg-[#12161a] border border-cyber-border rounded-xl p-3 flex flex-col justify-between items-start text-left cursor-pointer hover:border-red-500/30 hover:shadow-[0_0_15px_rgba(239,68,68,0.1)] transition-all relative overflow-hidden group"
+                  >
+                    <span className="text-3xl mt-1 select-none opacity-40 group-hover:opacity-80 transition-opacity">🎡</span>
+                    <span className="text-[8px] font-black tracking-widest text-red-400 uppercase leading-none mt-auto block">
+                      ROLETA
+                    </span>
+                  </button>
+                )}
               </div>
             </div>
           </motion.div>
@@ -273,9 +385,12 @@ export const Jogar: React.FC = () => {
             {activeGame === 'roleta' && <RoletaGame />}
             {activeGame === 'double' && <DoubleGame />}
             {activeGame === 'mines' && <MinesGame />}
+            {activeGame === 'dice' && <DiceGame />}
+            {activeGame === 'mental' && <SaudeMental />}
           </motion.div>
         )}
       </AnimatePresence>
     </div>
   )
 }
+

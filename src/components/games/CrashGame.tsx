@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { useStore } from '../../store/useStore'
 import { Play, ShieldAlert } from 'lucide-react'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import { Button } from '../ui/Button'
 import { Card } from '../ui/Card'
 import { Badge } from '../ui/Badge'
@@ -10,6 +10,7 @@ import { casinoAudio } from '../../utils/audioEngine'
 import { CoinShower } from '../animations/CoinShower'
 import { Confetti } from '../ui/Confetti'
 import { LossShake } from '../animations/LossShake'
+import { CognitiveOverlay } from '../ui/CognitiveOverlay'
 
 export const CrashGame: React.FC = () => {
   const { spendBalance, addBalance, incrementSimulatedStats } = useStore()
@@ -21,6 +22,12 @@ export const CrashGame: React.FC = () => {
   const [showConfetti, setShowConfetti] = useState(false)
   const [showerTrigger, setShowerTrigger] = useState(false)
   const [showerCoords, setShowerCoords] = useState({ x: 0, y: 0 })
+  const [outcomeMessage, setOutcomeMessage] = useState<{ type: 'win' | 'loss'; text: string } | null>(null)
+
+  // Interruption overlay states
+  const [accumulatedSpent, setAccumulatedSpent] = useState(0)
+  const [overlayOpen, setOverlayOpen] = useState(false)
+  const [overlayAmount, setOverlayAmount] = useState(0)
 
   const timerRef = useRef<any>(null)
   const crashPointRef = useRef(1.0)
@@ -30,6 +37,19 @@ export const CrashGame: React.FC = () => {
       if (timerRef.current) clearInterval(timerRef.current)
     }
   }, [])
+
+  const triggerInterruption = (costSpent: number) => {
+    const newAccumulated = accumulatedSpent + costSpent
+    if (newAccumulated >= 10) {
+      setOverlayAmount(newAccumulated)
+      setAccumulatedSpent(0)
+      setTimeout(() => {
+        setOverlayOpen(true)
+      }, 1500)
+    } else {
+      setAccumulatedSpent(newAccumulated)
+    }
+  }
 
   const handleStart = () => {
     if (gameState === 'running') return
@@ -46,6 +66,7 @@ export const CrashGame: React.FC = () => {
     setInsight(null)
     setIsLoss(false)
     setShowConfetti(false)
+    setOutcomeMessage(null)
     incrementSimulatedStats(cost, 30)
 
     const rng = Math.random()
@@ -59,7 +80,6 @@ export const CrashGame: React.FC = () => {
 
     let currentMult = 1.0
     timerRef.current = setInterval(() => {
-      // Play tick sound on each multiplier tick
       casinoAudio.playTick()
       
       currentMult += 0.05 + (currentMult * 0.015)
@@ -70,9 +90,17 @@ export const CrashGame: React.FC = () => {
         casinoAudio.playLossSweep()
         setIsLoss(true)
         setGameState('crashed')
+        
+        setOutcomeMessage({
+          type: 'loss',
+          text: `CRASHOU EM ${currentMult.toFixed(2)}x! PERDEU R$ 100,00`
+        })
+
         setInsight(
           "💥 ANTAGONISMO DA PERDA RÁPIDA: Você perdeu tudo! O crash game atua diretamente na ansiedade. O multiplicador subindo dispara cortisol. O cérebro fica dividido entre o pânico de 'crachar' e a ganância do 'subir mais'. Quando cracha, gera arrependimento severo ('eu devia ter retirado') e te impulsiona a apostar valores maiores na sequência para recuperar o prejuízo. É o ciclo de reforço que esvazia contas em minutos."
         )
+
+        triggerInterruption(100)
       }
     }, 120)
   }
@@ -92,9 +120,16 @@ export const CrashGame: React.FC = () => {
     setShowerCoords({ x: e.clientX || window.innerWidth / 2, y: e.clientY || window.innerHeight / 2 })
     setShowerTrigger(true)
 
+    setOutcomeMessage({
+      type: 'win',
+      text: `RETIROU EM ${multiplier.toFixed(2)}x! GANHOU R$ ${winAmount.toFixed(2).replace('.', ',')}`
+    })
+
     setInsight(
       `🎉 RETIRADA COM SUCESSO! Você garantiu ${multiplier}x de retorno virtual. Porém, analise: durante a subida, seus batimentos cardíacos aceleraram? O cérebro foi inundado de dopamina temporária. Na vida real, esse pico de estresse cobra um preço caro da saúde cardiovascular e mental, além do fato de que na próxima rodada, a chance de perder tudo logo no início (ex: 1.00x) é alta. Vale a pena gastar saúde por moedas de mentira?`
     )
+
+    triggerInterruption(100)
   }
 
   return (
@@ -109,6 +144,13 @@ export const CrashGame: React.FC = () => {
           targetId="header-balance-container"
           onCoinArrived={() => casinoAudio.playCoinChime()}
           onComplete={() => setShowerTrigger(false)}
+        />
+
+        {/* Cognitive Interruption Overlay */}
+        <CognitiveOverlay 
+          isOpen={overlayOpen}
+          amountSpent={overlayAmount}
+          onClose={() => setOverlayOpen(false)}
         />
 
         <div className="text-center space-y-1">
@@ -127,6 +169,26 @@ export const CrashGame: React.FC = () => {
               {multiplier}x
             </span>
           </div>
+
+          <AnimatePresence>
+            {outcomeMessage && (
+              <div className="absolute top-4 right-4 z-10 select-none">
+                <motion.span
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0 }}
+                  className={cn(
+                    "px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-wider border",
+                    outcomeMessage.type === 'win' 
+                      ? 'bg-emerald-950/40 border-emerald-500 text-neon-green glow-green' 
+                      : 'bg-red-950/40 border-red-500 text-neon-red glow-red'
+                  )}
+                >
+                  {outcomeMessage.text}
+                </motion.span>
+              </div>
+            )}
+          </AnimatePresence>
 
           {gameState === 'crashed' && (
             <div className="absolute inset-0 flex items-center justify-center bg-red-950/20 z-10 select-none">

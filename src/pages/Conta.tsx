@@ -2,7 +2,8 @@ import React from 'react'
 import { useStore } from '../store/useStore'
 import { 
   User, PhoneCall, Shield, EyeOff, 
-  Pencil, Flame, Activity, BookOpen 
+  Pencil, Flame, Activity, BookOpen,
+  Sparkles, RefreshCw
 } from 'lucide-react'
 import { Card } from '../components/ui/Card'
 import { Button } from '../components/ui/Button'
@@ -11,7 +12,6 @@ import { cn } from '../utils/cn'
 import { formatCooldownTime } from '../utils/time'
 import { casinoAudio } from '../utils/audioEngine'
 import { motion } from 'framer-motion'
-
 export const Conta: React.FC = () => {
   const { 
     streak, 
@@ -21,7 +21,11 @@ export const Conta: React.FC = () => {
     cooldownTimeLeft, 
     setCooldown, 
     resetStats,
-    realMoneySaved
+    realMoneySaved,
+    registered,
+    selectedPlan,
+    simulatedDay,
+    advanceDay
   } = useStore()
 
   const handleSetCooldown = (hours: number) => {
@@ -196,6 +200,75 @@ export const Conta: React.FC = () => {
           </div>
         )}
       </Card>
+
+      {/* Saturation and Plan Desmame debug card */}
+      {registered && (
+        <Card className="p-5 space-y-4 text-left bg-[#12161a] border border-cyber-border">
+          <div className="flex items-center gap-2 text-neon-green select-none">
+            <Sparkles size={18} className="text-glow-green" />
+            <h3 className="text-xs font-black text-white uppercase tracking-wider font-display">
+              Desmame de Estímulos (Dopamina)
+            </h3>
+          </div>
+
+          <div className="space-y-3">
+            <p className="text-[10px] text-zinc-400 leading-relaxed font-medium">
+              À medida que os dias passam em seu plano, a RDBET reduz as cores neon (saturação CSS) e o volume de sons sintéticos para dessensibilizar seu cérebro de picos fáceis de excitação.
+            </p>
+
+            <div className="bg-zinc-950 border border-cyber-border p-3 rounded-xl space-y-2 text-xs">
+              <div className="flex justify-between items-center text-[10px]">
+                <span className="text-zinc-500 font-extrabold uppercase">Plano Selecionado</span>
+                <span className="text-white font-extrabold uppercase">
+                  {selectedPlan === '30' && 'Redução 30 Dias'}
+                  {selectedPlan === '60' && 'Redução 60 Dias'}
+                  {selectedPlan === 'unlimited' && 'Sem Limite (Fixo)'}
+                </span>
+              </div>
+
+              <div className="flex justify-between items-center text-[10px]">
+                <span className="text-zinc-500 font-extrabold uppercase">Dia do Processo</span>
+                <span className="text-white font-black">
+                  Dia {simulatedDay} {selectedPlan !== 'unlimited' && `de ${selectedPlan}`}
+                </span>
+              </div>
+
+              {selectedPlan !== 'unlimited' && (
+                <div className="space-y-1.5">
+                  <div className="flex justify-between items-center text-[9px] text-zinc-500">
+                    <span>Saturação Visual</span>
+                    <span className="font-bold text-neon-green">
+                      {Math.round((selectedPlan === '30' ? Math.max(0, 1 - (simulatedDay - 1) / 30) : Math.max(0, 1 - (simulatedDay - 1) / 60)) * 100)}%
+                    </span>
+                  </div>
+                  {/* Progress bar */}
+                  <div className="w-full h-1.5 bg-zinc-900 border border-zinc-800 rounded-full overflow-hidden">
+                    <div 
+                      className="h-full bg-neon-green transition-all duration-300"
+                      style={{ 
+                        width: `${Math.round((selectedPlan === '30' ? Math.max(0, 1 - (simulatedDay - 1) / 30) : Math.max(0, 1 - (simulatedDay - 1) / 60)) * 100)}%` 
+                      }}
+                    />
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <Button
+              onClick={() => {
+                casinoAudio.playTick()
+                advanceDay()
+              }}
+              variant="primary"
+              glow
+              className="w-full text-xs font-black py-3.5"
+            >
+              <RefreshCw size={14} className="animate-spin" style={{ animationDuration: '4s' }} />
+              Simular Avanço de Dia (+1 Dia)
+            </Button>
+          </div>
+        </Card>
+      )}
 
       {/* Guided breathing box */}
       <div className="text-left">
