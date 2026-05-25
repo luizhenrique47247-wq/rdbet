@@ -19,7 +19,6 @@ export const DoubleGame: React.FC = () => {
   const [insight, setInsight] = useState<string | null>(null)
   
   const [isLoss, setIsLoss] = useState(false)
-  const [isWin, setIsWin] = useState(false)
   const [showConfetti, setShowConfetti] = useState(false)
   const [showerTrigger, setShowerTrigger] = useState(false)
   const [showerCoords, setShowerCoords] = useState({ x: 0, y: 0 })
@@ -47,7 +46,6 @@ export const DoubleGame: React.FC = () => {
     setSpinning(true)
     setInsight(null)
     setIsLoss(false)
-    setIsWin(false)
     setShowConfetti(false)
 
     // Trigger tick sounds during rolling
@@ -83,7 +81,6 @@ export const DoubleGame: React.FC = () => {
       const won = betColor === winningColor
       if (won) {
         casinoAudio.playWinMelody()
-        setIsWin(true)
         setShowConfetti(true)
         
         // Reward payouts

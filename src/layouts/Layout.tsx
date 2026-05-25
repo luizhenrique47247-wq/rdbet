@@ -9,7 +9,7 @@ interface LayoutProps {
 }
 
 export const Layout: React.FC<LayoutProps> = ({ children }) => {
-  const { modoCritico, cooldownActive, cooldownTimeLeft, tickCooldown } = useStore()
+  const { modoCritico, cooldownActive, tickCooldown } = useStore()
 
   // Handle active cooldown countdown ticking
   useEffect(() => {

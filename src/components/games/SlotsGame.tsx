@@ -17,7 +17,6 @@ export const SlotsGame: React.FC = () => {
   const [insight, setInsight] = useState<string | null>(null)
 
   const [isLoss, setIsLoss] = useState(false)
-  const [isWin, setIsWin] = useState(false)
   const [showConfetti, setShowConfetti] = useState(false)
   const [showerTrigger, setShowerTrigger] = useState(false)
   const [showerCoords, setShowerCoords] = useState({ x: 0, y: 0 })
@@ -53,7 +52,6 @@ export const SlotsGame: React.FC = () => {
     setSpinning(true)
     setInsight(null)
     setIsLoss(false)
-    setIsWin(false)
     setShowConfetti(false)
 
     let spinTicks = 0
@@ -100,7 +98,6 @@ export const SlotsGame: React.FC = () => {
 
         if (won) {
           casinoAudio.playWinMelody()
-          setIsWin(true)
           setShowConfetti(true)
           
           // Reward payout (10x multiplier)
