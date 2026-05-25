@@ -53,16 +53,16 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
   return (
     <div 
       className={cn(
-        "min-h-screen w-full flex justify-center bg-black transition-colors duration-300",
+        "h-screen h-[100dvh] w-full flex justify-center bg-black overflow-hidden transition-colors duration-300",
         modoCritico && "modo-critico"
       )}
       style={{ filter: `saturate(${saturation})` }}
     >
-      <div className="w-full max-w-md md:max-w-xl min-h-screen bg-zinc-950 border-x border-cyber-border flex flex-col pb-20 relative shadow-2xl overflow-x-hidden">
+      <div className="w-full max-w-md md:max-w-xl h-full bg-zinc-950 border-x border-cyber-border flex flex-col relative shadow-2xl overflow-hidden">
         <Header />
         
         {/* Main Content Area */}
-        <main className="flex-1 px-4 py-6 overflow-y-auto">
+        <main className="flex-1 px-4 py-6 overflow-y-auto overflow-x-hidden">
           {showLockScreen ? (
             <div className="flex flex-col items-center justify-center text-center space-y-6 py-16 px-4 animate-fade-in select-none">
               <div className="w-20 h-20 bg-zinc-900 border border-cyber-border rounded-full flex items-center justify-center text-neon-green glow-green animate-pulse">

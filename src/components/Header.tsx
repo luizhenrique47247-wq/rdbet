@@ -30,7 +30,7 @@ export const Header: React.FC = () => {
 
   return (
     <>
-      <header className="sticky top-0 z-40 w-full border-b border-cyber-border bg-[#0b0d10] px-4 py-3.5 flex items-center justify-between">
+      <header className="w-full border-b border-cyber-border bg-[#0b0d10] px-4 py-3.5 flex items-center justify-between z-40 shrink-0">
         {/* Logo Section */}
         <div className="flex items-center gap-2">
           <div className="w-8 h-8 rounded-lg bg-emerald-950/30 border border-neon-green/40 flex items-center justify-center text-neon-green glow-green">
