@@ -1,4 +1,5 @@
 import React from 'react'
+import { createPortal } from 'react-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { X } from 'lucide-react'
 import { cn } from '../../utils/cn'
@@ -18,7 +19,7 @@ export const Modal: React.FC<ModalProps> = ({
   children,
   accentColor = 'green'
 }) => {
-  return (
+  return createPortal(
     <AnimatePresence>
       {isOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm">
@@ -26,7 +27,7 @@ export const Modal: React.FC<ModalProps> = ({
             initial={{ scale: 0.95, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.95, opacity: 0 }}
-            className="w-full max-w-md bg-zinc-950 border border-cyber-border rounded-2xl p-6 shadow-2xl relative overflow-hidden"
+            className="w-full max-w-md bg-[#12161a] border border-cyber-border rounded-2xl p-6 shadow-2xl relative overflow-hidden text-white"
           >
             {/* Decorative top accent */}
             <div
@@ -55,6 +56,7 @@ export const Modal: React.FC<ModalProps> = ({
           </motion.div>
         </div>
       )}
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body
   )
 }

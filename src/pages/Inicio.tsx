@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { useStore } from '../store/useStore'
-import { Gift, ChevronDown, Award, Ticket, CheckCircle2, Lock, Heart, User, PhoneCall, ExternalLink, Flame } from 'lucide-react'
+import { Gift, ChevronDown, Award, Ticket, CheckCircle2, Lock, Heart, User, PhoneCall, ExternalLink, Flame, MessageSquare } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Card } from '../components/ui/Card'
 import { casinoAudio } from '../utils/audioEngine'
@@ -18,6 +18,7 @@ interface LiveLoss {
 export const Inicio: React.FC = () => {
   const { 
     registered, 
+    userName, 
     selectedPlan, 
     simulatedDay,
     streak,
@@ -132,6 +133,18 @@ export const Inicio: React.FC = () => {
     }
   ]
 
+  let titleSub = "APOSTE NO ÚNICO"
+  let titleMid = "MERCADO ONDE A"
+  let titleBot = "VITÓRIA É VOCÊ"
+  let descText = "A única Bet onde quebrar a banca não quebra a sua vida. Receba uma banca virtual todos os dias. Mate a fissura de apostar e descubra o que você estaria perdendo na vida real."
+
+  if (registered) {
+    titleSub = "BEM-VINDO DE VOLTA,"
+    titleMid = userName ? userName.toUpperCase() : "VISITANTE"
+    titleBot = "A BANCA É SUA"
+    descText = "Mantenha seu protocolo clínico ativo. Utilize a simulação para esgotar o impulso sem comprometer sua vida financeira real."
+  }
+
   return (
     <div className="space-y-8 text-center select-none pb-8">
       {/* Coin Shower Animation */}
@@ -156,21 +169,19 @@ export const Inicio: React.FC = () => {
         </div>
 
         {/* Title messages */}
-        <div className="space-y-1 z-10">
-          <h1 className="text-2xl md:text-3xl font-black text-white uppercase tracking-wider leading-none font-display">
-            APOSTE NO ÚNICO
-          </h1>
-          <h1 className="text-2xl md:text-3xl font-black text-white uppercase tracking-wider leading-none font-display">
-            MERCADO ONDE A
-          </h1>
-          <h1 className="text-3xl md:text-4xl font-black text-neon-green text-glow-green uppercase tracking-widest leading-none mt-1 font-display">
-            VITORIA E VOCE
+        <div className="space-y-1 z-10 w-full flex flex-col items-center">
+          <h1 className="font-bold leading-[1.1] uppercase text-white tracking-tight flex flex-col items-center w-full text-center px-2 font-display">
+            <span className="whitespace-normal break-words" style={{ fontSize: 'clamp(1.8rem, 8vw, 3rem)' }}>{titleSub}</span>
+            <span className="whitespace-normal break-words" style={{ fontSize: 'clamp(2rem, 9vw, 3.5rem)', textShadow: '0 0 10px rgba(255,255,255,0.1)' }}>{titleMid}</span>
+            <span className="text-transparent bg-clip-text bg-gradient-to-b from-neon-green to-[#85ff7a] drop-shadow-[0_0_20px_rgba(57,255,20,0.5)] whitespace-normal mt-2" style={{ fontSize: 'clamp(2.2rem, 10vw, 4rem)' }}>
+              {titleBot}
+            </span>
           </h1>
         </div>
 
         {/* Paragraph description */}
-        <p className="text-[11px] text-zinc-400 font-medium max-w-[90%] leading-relaxed z-10 mx-auto">
-          A única Bet onde quebrar a banca não quebra a sua vida. Receba uma banca virtual todos os dias. Mate a fissura de apostar e descubra o que você estaria perdendo na vida real.
+        <p className="text-[11px] text-zinc-400 font-medium max-w-[92%] leading-relaxed z-10 mx-auto">
+          {descText}
         </p>
 
         {/* Action Button: Register or claim bank */}
@@ -366,6 +377,34 @@ export const Inicio: React.FC = () => {
               Que não foram pro lixo
             </span>
           </Card>
+        </div>
+      </div>
+
+      {/* Comunidade de Vencedores (Testimonials) */}
+      <div className="space-y-4 text-left">
+        <div className="flex justify-between items-end pb-1 border-b border-cyber-border">
+          <h3 className="text-base font-black text-white uppercase tracking-wider flex items-center gap-1.5 font-display">
+            <MessageSquare size={16} className="text-neon-green stroke-[2.2]" />
+            Comunidade de Vencedores
+          </h3>
+          <span className="text-[8px] text-zinc-500 font-black uppercase tracking-widest pb-0.5">
+            Depoimentos
+          </span>
+        </div>
+
+        <div className="bg-[#0b141a] rounded-2xl p-4 border border-zinc-800/40 flex flex-col gap-4">
+          <div className="flex flex-col gap-1 items-start w-full pr-8">
+            <span className="text-[9px] text-zinc-500 ml-1">Anônimo • Há 2 dias</span>
+            <div className="bg-[#202c33] text-white text-xs p-3 rounded-2xl rounded-tl-none leading-relaxed shadow-sm">
+              Deu uma fissura louca na sexta à noite. Abri a plataforma, torrei os R$ 200 da banca fake em 10 minutos. Quando a tela mostrou que eu teria perdido o dinheiro da fralda do meu moleque, eu chorei. Obrigado por esse app. 🙏
+            </div>
+          </div>
+          <div className="flex flex-col gap-1 items-end w-full pl-8">
+            <span className="text-[9px] text-zinc-500 mr-1">João M. • Hoje</span>
+            <div className="bg-[#005c4b] text-white text-xs p-3 rounded-2xl rounded-tr-none leading-relaxed shadow-sm">
+              Jogar sem o peso de perder o meu salário no dia 5 me tirou a ansiedade que eu sentia no peito. Já tô há 20 dias sem depositar 1 real nas bets reais. O adesivo de nicotina funcionou kkkk 🛡️
+            </div>
+          </div>
         </div>
       </div>
 

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import { createPortal } from 'react-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ShieldAlert, Info } from 'lucide-react'
 import { casinoAudio } from '../../utils/audioEngine'
@@ -69,15 +70,15 @@ export const CognitiveOverlay: React.FC<CognitiveOverlayProps> = ({
 
   const equivalent = getRealWorldEquivalent(amountSpent)
 
-  return (
+  return createPortal(
     <AnimatePresence>
       {isOpen && (
-        <div className="absolute inset-0 z-50 flex items-center justify-center p-4 bg-black/95 backdrop-blur-md rounded-2xl select-none">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/95 backdrop-blur-md select-none">
           <motion.div
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.9, opacity: 0 }}
-            className="w-full h-full flex flex-col justify-between p-5 text-left text-white"
+            className="w-full max-w-md bg-[#12161a] border border-cyber-border rounded-2xl p-6 shadow-2xl flex flex-col justify-between min-h-[400px] text-left text-white relative overflow-hidden"
           >
             {/* Header Badge */}
             <div className="flex items-center gap-2 text-neon-red bg-red-950/20 border border-red-500/30 px-3 py-2 rounded-xl">
@@ -93,7 +94,7 @@ export const CognitiveOverlay: React.FC<CognitiveOverlayProps> = ({
             </div>
 
             {/* Core Message */}
-            <div className="space-y-4 my-auto">
+            <div className="space-y-4 my-6">
               <div className="space-y-1">
                 <span className="text-[10px] text-zinc-500 font-extrabold uppercase tracking-wider block">
                   Você acabou de gastar na simulação:
@@ -118,7 +119,7 @@ export const CognitiveOverlay: React.FC<CognitiveOverlayProps> = ({
               <div className="flex gap-2 p-3 bg-zinc-950 border border-zinc-800 rounded-xl text-[10px] text-zinc-400 leading-relaxed">
                 <Info size={14} className="text-blue-400 shrink-0 mt-0.5" />
                 <p>
-                  Estudos demonstram que as plataformas de aposta mascaram o dinheiro real sob forma de fichas/saldos coloridos para amortecer o sentimento de perda no cérebro.
+                  Estudos demonstram que as plataformas de aposta mascaram o dinheiro real sob forma de saldos coloridos para amortecer o sentimento de perda no cérebro.
                 </p>
               </div>
             </div>
@@ -151,6 +152,7 @@ export const CognitiveOverlay: React.FC<CognitiveOverlayProps> = ({
           </motion.div>
         </div>
       )}
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body
   )
 }
