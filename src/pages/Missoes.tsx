@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { useStore } from '../store/useStore'
-import { Brain, Award } from 'lucide-react'
+import { Brain, Award, Gift } from 'lucide-react'
 import { Card } from '../components/ui/Card'
 import { ProgressBar } from '../components/ui/ProgressBar'
 import { TriggerForm } from '../components/missions/TriggerForm'
@@ -15,7 +15,10 @@ export const Missoes: React.FC = () => {
     missions, 
     completeMission, 
     checkedIn, 
-    performCheckIn 
+    performCheckIn,
+    claimedToday,
+    unclaimedDays,
+    claimDailyReward
   } = useStore()
 
   const [showerTrigger, setShowerTrigger] = useState(false)
@@ -33,6 +36,20 @@ export const Missoes: React.FC = () => {
     setShowerTrigger(true)
     
     performCheckIn()
+  }
+
+  // Claim daily reward (Banca Diária)
+  const handleClaimDailyReward = (e: React.MouseEvent<HTMLButtonElement>) => {
+    if (claimedToday) return
+    
+    // Play win sound
+    casinoAudio.playWinMelody()
+    
+    // Trigger coin shower
+    setShowerCoords({ x: e.clientX || window.innerWidth / 2, y: e.clientY || window.innerHeight / 2 })
+    setShowerTrigger(true)
+    
+    claimDailyReward()
   }
 
   return (
@@ -83,6 +100,40 @@ export const Missoes: React.FC = () => {
         <div className="z-10 relative">
           <ProgressBar value={xp} variant="green" height="sm" />
         </div>
+      </Card>
+
+      {/* Daily Reward Claim Card */}
+      <Card className="p-5 border-neon-green/20 relative overflow-hidden bg-[#12161a] flex flex-col gap-4">
+        {/* Top right status tag */}
+        <div className="absolute top-0 right-0 bg-[#00ff3c] text-black font-black text-[8px] tracking-widest px-3 py-1.5 uppercase rounded-bl-lg select-none">
+          Banca Diária
+        </div>
+
+        <div className="flex items-center gap-4 mt-2">
+          <div className="w-12 h-12 rounded-full border border-neon-green/30 bg-emerald-950/20 flex items-center justify-center text-neon-green shrink-0 glow-green">
+            <Gift size={22} className="stroke-[2.2]" />
+          </div>
+          <div className="space-y-0.5">
+            <span className="text-xs font-black text-white block">
+              Banca Diária Virtual
+            </span>
+            <span className="text-[10px] text-zinc-500 block leading-tight">
+              {claimedToday 
+                ? 'Sua banca de hoje já foi depositada.' 
+                : `Resgate seu saldo virtual de R$ ${50 * (unclaimedDays + 1)},00 para jogar hoje.`}
+            </span>
+          </div>
+        </div>
+
+        <button
+          onClick={handleClaimDailyReward}
+          disabled={claimedToday}
+          className="w-full py-3.5 bg-neon-green hover:bg-neon-green-glow disabled:bg-zinc-800 text-black disabled:text-zinc-500 font-black text-xs uppercase tracking-widest rounded-xl transition-all cursor-pointer shadow-[0_4px_15px_rgba(0,255,60,0.2)] disabled:shadow-none"
+        >
+          {claimedToday 
+            ? 'SALDO DIÁRIO RESGATADO' 
+            : `RESGATAR R$ ${50 * (unclaimedDays + 1)},00`}
+        </button>
       </Card>
 
       {/* Sobriedade Check-in Card */}

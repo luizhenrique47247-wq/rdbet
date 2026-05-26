@@ -4,16 +4,33 @@ import { Gift, ChevronDown, Award, Ticket, CheckCircle2, Lock, Heart, User, Phon
 import { motion, AnimatePresence } from 'framer-motion'
 import { Card } from '../components/ui/Card'
 import { casinoAudio } from '../utils/audioEngine'
-import { CoinShower } from '../components/animations/CoinShower'
 import { Modal } from '../components/ui/Modal'
 import { cn } from '../utils/cn'
 
-interface LiveLoss {
-  id: string
-  name: string
-  game: string
-  amount: number
-}
+const feedItems = [
+  { name: 'João_99', game: 'CRASH', amount: 240.50 },
+  { name: 'Ana Paula', game: 'MINES', amount: 150.00 },
+  { name: 'ReiDo***', game: 'ROLETA', amount: 500.00 },
+  { name: 'Gamer_X', game: 'DICE', amount: 75.20 },
+  { name: 'Tigresa', game: 'SLOTS', amount: 850.00 },
+  { name: 'Carlos B.', game: 'DOUBLE', amount: 120.00 },
+  { name: 'User_007', game: 'CRASH', amount: 320.00 },
+  { name: 'Vini***', game: 'MINES', amount: 259.21 },
+  { name: 'Leticia', game: 'ROLETA', amount: 180.00 },
+  { name: 'Rafaela_S', game: 'DICE', amount: 95.00 },
+  { name: 'Pedro_x', game: 'SLOTS', amount: 620.00 },
+  { name: 'Marcos.T', game: 'DOUBLE', amount: 140.00 },
+  { name: 'Silva_Bet', game: 'CRASH', amount: 300.00 },
+  { name: 'Bruna***', game: 'MINES', amount: 80.00 },
+  { name: 'Dopamina99', game: 'ROLETA', amount: 400.00 },
+  { name: 'Guga_Bet', game: 'DICE', amount: 110.00 },
+  { name: 'Mel_A', game: 'SLOTS', amount: 730.00 },
+  { name: 'Felipe_R', game: 'DOUBLE', amount: 210.00 },
+  { name: 'Lucas_98', game: 'CRASH', amount: 350.00 },
+  { name: 'Patty***', game: 'MINES', amount: 190.00 }
+]
+
+const doubleFeedItems = [...feedItems, ...feedItems]
 
 export const Inicio: React.FC = () => {
   const { 
@@ -26,7 +43,7 @@ export const Inicio: React.FC = () => {
     unclaimedDays,
     claimedToday,
     registerUser,
-    claimDailyReward
+    setTab
   } = useStore()
 
   const [activeFaq, setActiveFaq] = useState<number | null>(null)
@@ -34,21 +51,6 @@ export const Inicio: React.FC = () => {
   const [regName, setRegName] = useState('')
   const [regPlan, setRegPlan] = useState<'30' | '60' | 'unlimited'>('30')
   const [agreeTerms, setAgreeTerms] = useState(false)
-
-  // Floating shower animation coordinates
-  const [showerTrigger, setShowerTrigger] = useState(false)
-  const [showerCoords, setShowerCoords] = useState({ x: 0, y: 0 })
-  const [claimedAlert, setClaimedAlert] = useState<number | null>(null)
-
-  // Live losses simulated feed
-  const [liveLosses, setLiveLosses] = useState<LiveLoss[]>([
-    { id: '1', name: 'Carlos B.', game: 'TIGRE', amount: 527.15 },
-    { id: '2', name: 'Tigresa', game: 'TIGRE', amount: 261.14 },
-    { id: '3', name: 'User_007', game: 'CRASH', amount: 381.87 },
-    { id: '4', name: 'Tigresa', game: 'CRASH', amount: 343.03 },
-    { id: '5', name: 'João_99', game: 'FUTEBOL', amount: 335.42 },
-    { id: '6', name: 'Vini***', game: 'FUTEBOL', amount: 259.21 },
-  ])
 
   // Custom Event Listener to open register modal from Header
   useEffect(() => {
@@ -58,25 +60,6 @@ export const Inicio: React.FC = () => {
     }
     window.addEventListener('open-register-modal', openModal)
     return () => window.removeEventListener('open-register-modal', openModal)
-  }, [])
-
-  // Rotate live losses feed every 4 seconds to simulate active betting
-  useEffect(() => {
-    const interval = setInterval(() => {
-      const names = ['Carlos B.', 'Tigresa', 'User_007', 'João_99', 'Vini***', 'Pedro_x', 'Ana.Silva', 'BetKiller', 'Dopamina99', 'Guga_Bet', 'Rafa***', 'Mel_A']
-      const games = ['TIGRE', 'CRASH', 'FUTEBOL', 'DOUBLE', 'RODOVIÁRIA', 'ROLETINHA', 'MINES']
-      
-      const newLoss: LiveLoss = {
-        id: String(Date.now()),
-        name: names[Math.floor(Math.random() * names.length)],
-        game: games[Math.floor(Math.random() * games.length)],
-        amount: parseFloat((Math.random() * 800 + 40).toFixed(2))
-      }
-
-      setLiveLosses(prev => [newLoss, ...prev.slice(0, 5)])
-    }, 4000)
-
-    return () => clearInterval(interval)
   }, [])
 
   const handleRegisterSubmit = (e: React.FormEvent) => {
@@ -95,24 +78,7 @@ export const Inicio: React.FC = () => {
     setShowRegisterModal(false)
   }
 
-  const handleClaimReward = (e: React.MouseEvent<HTMLButtonElement>) => {
-    if (claimedToday) return
-    
-    // Calculate how much they will receive
-    const multiplier = Math.min(3, unclaimedDays + 1)
-    const payout = multiplier * 50
 
-    casinoAudio.playWinMelody()
-    setShowerCoords({ x: e.clientX || window.innerWidth / 2, y: e.clientY || window.innerHeight / 2 })
-    setShowerTrigger(true)
-
-    claimDailyReward()
-    setClaimedAlert(payout)
-    
-    setTimeout(() => {
-      setClaimedAlert(null)
-    }, 4000)
-  }
 
   const faqItems = [
     {
@@ -147,15 +113,7 @@ export const Inicio: React.FC = () => {
 
   return (
     <div className="space-y-8 text-center select-none pb-8">
-      {/* Coin Shower Animation */}
-      <CoinShower
-        trigger={showerTrigger}
-        startX={showerCoords.x}
-        startY={showerCoords.y}
-        targetId="header-balance-container"
-        onCoinArrived={() => casinoAudio.playCoinChime()}
-        onComplete={() => setShowerTrigger(false)}
-      />
+
 
       {/* Hero Section (Print 1) */}
       <div className="relative py-8 px-4 flex flex-col items-center justify-center space-y-6 overflow-hidden">
@@ -198,14 +156,18 @@ export const Inicio: React.FC = () => {
         ) : (
           <div className="w-full flex flex-col items-center gap-3 z-10">
             <button
-              onClick={handleClaimReward}
-              disabled={claimedToday}
-              className="w-full max-w-[300px] py-4 bg-transparent hover:bg-neon-green/5 border-2 border-neon-green rounded-xl text-neon-green font-black text-xs uppercase tracking-widest transition-all cursor-pointer flex items-center justify-center gap-3 shadow-[0_0_15px_rgba(0,255,60,0.15)] hover:shadow-[0_0_25px_rgba(0,255,60,0.35)] disabled:opacity-50"
+              onClick={() => {
+                casinoAudio.playTick()
+                setTab('missoes')
+              }}
+              className="w-full max-w-[300px] py-4 bg-transparent hover:bg-neon-green/5 border-2 border-neon-green rounded-xl text-neon-green font-black text-xs uppercase tracking-widest transition-all cursor-pointer flex items-center justify-center gap-3 shadow-[0_0_15px_rgba(0,255,60,0.15)] hover:shadow-[0_0_25px_rgba(0,255,60,0.35)]"
             >
               <Gift size={18} className="stroke-[2.5]" />
-              {claimedToday 
-                ? 'BANCA DIÁRIA RESGATADA!' 
-                : `RESGATAR BANCA DIÁRIA (+R$ ${50 * (unclaimedDays + 1)},00)`}
+              <span className="tracking-widest mt-1">
+                {claimedToday 
+                  ? 'VER TAREFAS DIÁRIAS' 
+                  : `RESGATAR BANCA DIÁRIA (+R$ ${50 * (unclaimedDays + 1)},00)`}
+              </span>
             </button>
             <span className="text-[9px] text-zinc-500 font-black uppercase tracking-wider">
               Plano de Desmame: Dia {simulatedDay} de {selectedPlan === 'unlimited' ? '∞' : selectedPlan + ' Dias'}
@@ -214,19 +176,7 @@ export const Inicio: React.FC = () => {
         )}
       </div>
 
-      {/* Floating claimed alert */}
-      <AnimatePresence>
-        {claimedAlert !== null && (
-          <motion.div
-            initial={{ opacity: 0, y: 15 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -15 }}
-            className="bg-[#12161a] border border-neon-green/30 text-neon-green text-xs font-bold py-2.5 px-5 rounded-xl mx-auto max-w-xs shadow-lg shadow-black/80"
-          >
-            +R$ {claimedAlert},00 virtuais creditados na sua banca!
-          </motion.div>
-        )}
-      </AnimatePresence>
+
 
       {/* Como Funciona Section (Print 2) */}
       <div className="space-y-4 text-left">
@@ -421,35 +371,31 @@ export const Inicio: React.FC = () => {
         </div>
 
         {/* Live Loss Table */}
-        <div className="bg-[#12161a] border border-cyber-border rounded-xl overflow-hidden divide-y divide-cyber-border">
-          <div className="grid grid-cols-3 px-4 py-2 bg-zinc-950/40 text-[8px] text-zinc-500 font-black uppercase tracking-widest">
+        <div className="bg-[#12161a] border border-cyber-border rounded-xl overflow-hidden">
+          <div className="grid grid-cols-3 px-4 py-2 bg-zinc-950/40 text-[8px] text-zinc-500 font-black uppercase tracking-widest border-b border-cyber-border">
             <span>JOGADOR</span>
             <span>JOGO</span>
             <span className="text-right">PREJUÍZO REAL</span>
           </div>
 
-          <div className="divide-y divide-cyber-border/40 min-h-[220px]">
-            <AnimatePresence initial={false}>
-              {liveLosses.map((loss) => (
-                <motion.div
-                  key={loss.id}
-                  initial={{ opacity: 0, height: 0, y: -10 }}
-                  animate={{ opacity: 1, height: 'auto', y: 0 }}
-                  exit={{ opacity: 0, height: 0, y: 10 }}
-                  transition={{ duration: 0.35 }}
-                  className="grid grid-cols-3 px-4 py-3 items-center text-[10px]"
+          <div className="feed-mask">
+            <div className="animate-scroll-up-loop flex flex-col">
+              {doubleFeedItems.map((item, idx) => (
+                <div
+                  key={idx}
+                  className="grid grid-cols-3 px-4 py-3 items-center text-[10px] border-b border-cyber-border/40 shrink-0"
                 >
                   <div className="flex items-center gap-1.5 text-white font-bold">
                     <User size={12} className="text-zinc-500 stroke-[2]" />
-                    <span>{loss.name}</span>
+                    <span>{item.name}</span>
                   </div>
-                  <span className="text-zinc-400 font-black text-[9px]">{loss.game}</span>
+                  <span className="text-zinc-400 font-black text-[9px]">{item.game}</span>
                   <span className="text-neon-red font-black text-right tabular-nums">
-                    - R$ {loss.amount.toFixed(2).replace('.', ',')}
+                    - R$ {item.amount.toFixed(2).replace('.', ',')}
                   </span>
-                </motion.div>
+                </div>
               ))}
-            </AnimatePresence>
+            </div>
           </div>
         </div>
       </div>

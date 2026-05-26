@@ -164,3 +164,25 @@
 .pb-safe {
   padding-bottom: env(safe-area-inset-bottom, 12px);
 }
+
+/* Vertical scrolling marquee for live losses */
+@keyframes scrollUp {
+  0% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(-50%);
+  }
+}
+
+.animate-scroll-up-loop {
+  animation: scrollUp 25s linear infinite;
+}
+
+.feed-mask {
+  position: relative;
+  height: 220px;
+  overflow: hidden;
+  mask-image: linear-gradient(to bottom, transparent, black 12%, black 88%, transparent);
+  -webkit-mask-image: linear-gradient(to bottom, transparent, black 12%, black 88%, transparent);
+}
