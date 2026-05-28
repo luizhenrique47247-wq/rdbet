@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { useStore } from '../../store/useStore'
-import { Wind, HeartPulse, BrainCircuit, ShieldAlert, Award, Phone } from 'lucide-react'
+import { Wind, HeartPulse, BrainCircuit, ShieldAlert, Award, Phone, ChevronLeft } from 'lucide-react'
 import { Card } from '../ui/Card'
 import { Button } from '../ui/Button'
 import { BreathingBox } from '../ui/BreathingBox'
@@ -8,7 +8,7 @@ import { TriggerForm } from '../missions/TriggerForm'
 import { casinoAudio } from '../../utils/audioEngine'
 
 export const SaudeMental: React.FC = () => {
-  const { gainXp, addBalance } = useStore()
+  const { gainXp, addBalance, setActiveGame } = useStore()
   
   const [activeSubTab, setActiveSubTab] = useState<'respiracao' | 'gatilho' | 'quiz' | 'info'>('respiracao')
 
@@ -92,6 +92,25 @@ export const SaudeMental: React.FC = () => {
 
   return (
     <div className="space-y-4">
+      {/* Top Header Row with Back Button */}
+      <div className="flex items-center justify-between shrink-0 mb-4 z-20 select-none">
+        <button 
+          onClick={() => {
+            casinoAudio.playTick()
+            setActiveGame(null)
+          }}
+          className="bg-[#111]/80 p-1.5 rounded-xl text-white hover:bg-white/10 border border-white/5 transition-colors cursor-pointer"
+        >
+          <ChevronLeft size={18} />
+        </button>
+        
+        <h2 className="font-display font-black text-xl uppercase text-[#10b981] flex items-center gap-2 select-none">
+          <HeartPulse className="w-5 h-5 text-[#10b981] animate-pulse" /> Saúde Mental
+        </h2>
+        
+        <div className="w-8 h-8 flex items-center justify-center" />
+      </div>
+
       {/* Tab Selectors */}
       <div className="flex gap-2 border-b border-cyber-border pb-2 overflow-x-auto scrollbar-none select-none">
         {[

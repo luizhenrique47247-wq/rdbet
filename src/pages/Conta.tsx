@@ -1,58 +1,85 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
+import { createPortal } from 'react-dom'
 import { useStore } from '../store/useStore'
 import { 
-  User, PhoneCall, Shield, EyeOff, 
-  Pencil, Flame, Activity, BookOpen,
-  Sparkles, RefreshCw
+  Shield, Flame, BookOpen, ClipboardList, Activity, Pencil
 } from 'lucide-react'
 import { Card } from '../components/ui/Card'
-import { Button } from '../components/ui/Button'
-import { BreathingBox } from '../components/ui/BreathingBox'
 import { cn } from '../utils/cn'
-import { formatCooldownTime } from '../utils/time'
 import { casinoAudio } from '../utils/audioEngine'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
+
+const avatars = [
+  { id: '1', emoji: '🛡️', label: 'Guardião' },
+  { id: '2', emoji: '🧠', label: 'Equilíbrio' },
+  { id: '3', emoji: '🧘', label: 'Zen' },
+  { id: '4', emoji: '🍀', label: 'Racional' }
+]
+
 export const Conta: React.FC = () => {
   const { 
     streak, 
-    modoCritico, 
-    toggleModoCritico, 
-    cooldownActive, 
-    cooldownTimeLeft, 
-    setCooldown, 
-    resetStats,
     realMoneySaved,
-    registered,
+    simulatedMoneyLost,
     selectedPlan,
     simulatedDay,
-    advanceDay
+    avatarId,
+    setAvatarId,
+    setUserName,
+    setTab,
+    activityHistory,
+    userName,
+    emotionalDiary
   } = useStore()
 
-  const handleSetCooldown = (hours: number) => {
-    casinoAudio.playWarning()
-    setCooldown(hours * 3600)
-  }
+  const [editProfileOpen, setEditProfileOpen] = useState(false)
+  const [newName, setNewName] = useState(userName)
+  const [selectedAvatarId, setSelectedAvatarId] = useState(avatarId)
+  const [failedAvatars, setFailedAvatars] = useState<Record<string, boolean>>({})
 
-  const handleReset = () => {
-    casinoAudio.playWarning()
-    if (window.confirm("Atenção: Isso irá reiniciar todos os seus dados fictícios, estatísticas de salvamento e diários emocionais. Deseja prosseguir?")) {
-      resetStats()
-      alert("Dados reiniciados com sucesso!")
+  // Sync state values when modal opens
+  useEffect(() => {
+    if (editProfileOpen) {
+      setNewName(userName)
+      setSelectedAvatarId(avatarId)
     }
+  }, [editProfileOpen, userName, avatarId])
+
+  // Reset failed image states if registration updates
+  useEffect(() => {
+    setFailedAvatars({})
+  }, [avatarId])
+
+  const handleSaveProfile = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!newName.trim()) return
+
+    casinoAudio.playWinMelody()
+    setUserName(newName.trim())
+    setAvatarId(selectedAvatarId)
+    setEditProfileOpen(false)
   }
 
-  const handleToggleCritico = () => {
-    casinoAudio.playTick()
-    toggleModoCritico()
-  }
+  // Get current date formatted
+  const currentDate = new Date().toLocaleDateString('pt-BR', {
+    day: '2-digit',
+    month: 'long',
+    year: 'numeric'
+  })
 
   return (
-    <div className="space-y-6 text-center">
+    <div className="space-y-6 text-center select-none pb-8 animate-fade-in max-w-md mx-auto">
       {/* Premium Avatar Layout (Circular green orbit + intersecting rotating dot) */}
-      <div className="relative py-4 select-none">
-        <div className="relative w-28 h-28 mx-auto flex items-center justify-center">
+      <div className="relative py-4">
+        <div 
+          onClick={() => {
+            casinoAudio.playTick()
+            setEditProfileOpen(true)
+          }}
+          className="relative w-28 h-28 mx-auto flex items-center justify-center cursor-pointer group hover:scale-105 transition-transform"
+        >
           {/* Inner orbit line */}
-          <div className="absolute w-24 h-24 rounded-full border border-neon-green/20" />
+          <div className="absolute w-24 h-24 rounded-full border-2 border-neon-green" />
           
           {/* Outer orbit line with rotating green dot */}
           <motion.div 
@@ -63,298 +90,358 @@ export const Conta: React.FC = () => {
             <div className="absolute top-1.5 right-2 w-3.5 h-3.5 bg-neon-green rounded-full shadow-[0_0_12px_rgba(0,255,60,0.9)] glow-green" />
           </motion.div>
           
-          {/* Inner avatar background */}
-          <div className="w-20 h-20 bg-[#12161a] border border-cyber-border rounded-full flex items-center justify-center text-zinc-300">
-            <User size={36} className="stroke-[1.5]" />
+          {/* Inner avatar background showing selected image */}
+          <div className="w-20 h-20 bg-[#12161a] border border-cyber-border rounded-full flex items-center justify-center overflow-hidden">
+            {!failedAvatars[avatarId] ? (
+              <img 
+                src={`${import.meta.env.BASE_URL}avatars/avatar${avatarId}.png`}
+                alt="Avatar"
+                className="w-full h-full object-cover rounded-full"
+                onError={() => setFailedAvatars(prev => ({ ...prev, [avatarId]: true }))}
+              />
+            ) : (
+              <span className="text-3xl select-none">
+                {avatars.find(a => a.id === avatarId)?.emoji || '🛡️'}
+              </span>
+            )}
           </div>
         </div>
       </div>
 
-      {/* Profile Header Title */}
-      <div className="space-y-3 select-none">
+      {/* Profile Name & Edit Button */}
+      <div className="space-y-3 flex flex-col items-center">
         <h2 className="text-2xl font-black text-white uppercase tracking-wider font-display">
-          USUÁRIO VIP
+          {userName ? userName.toUpperCase() : "USUÁRIO VIP"}
         </h2>
         
         <button
           onClick={() => {
             casinoAudio.playTick()
-            alert("Recurso de edição de perfil fictício.")
+            setEditProfileOpen(true)
           }}
-          className="mx-auto px-4 py-2 border border-zinc-800 hover:border-zinc-700 rounded-full text-[10px] font-black text-zinc-400 uppercase tracking-widest flex items-center gap-1.5 cursor-pointer transition-colors"
+          className="px-5 py-2 border border-zinc-800 hover:border-zinc-700 bg-zinc-950/40 hover:bg-zinc-900/40 rounded-full text-[10px] font-black uppercase text-zinc-300 flex items-center justify-center gap-1.5 transition-all cursor-pointer"
         >
-          <Pencil size={12} />
+          <Pencil size={11} className="text-zinc-500" />
           EDITAR PERFIL
         </button>
       </div>
 
       {/* Side-by-side stats widget cards */}
-      <div className="grid grid-cols-2 gap-3.5 text-left">
+      <div className="grid grid-cols-2 gap-4 mt-6">
         {/* Left: Dias Limpos */}
         <Card 
-          onClick={() => casinoAudio.playTick()}
-          className="p-4 bg-[#12161a] border-cyber-border relative overflow-hidden flex flex-col justify-between h-24 cursor-pointer hover:border-zinc-800 transition-all"
+          className="p-5 border-red-500/20 bg-red-950/5 relative overflow-hidden flex flex-col items-center justify-center h-28 text-center"
         >
-          <div className="absolute bottom-1 right-1 text-orange-500/10 opacity-30 select-none pointer-events-none">
-            <Flame size={56} className="stroke-[1.5]" />
+          <div className="absolute bottom-1 right-1 text-red-500/10 opacity-20 pointer-events-none">
+            <Flame size={72} className="stroke-[1.5]" />
           </div>
-          <span className="text-[9px] text-[#ff8000] font-black uppercase tracking-widest block select-none">
+          <span className="text-[10px] text-red-400 font-black uppercase tracking-widest block mb-2">
             DIAS LIMPOS
           </span>
-          <span className="text-3xl font-black text-white tabular-nums leading-none mb-1">
+          <span className="text-4xl font-black text-white tabular-nums leading-none">
             {streak}
           </span>
         </Card>
 
         {/* Right: Protegido */}
         <Card 
-          onClick={() => casinoAudio.playTick()}
-          className="p-4 bg-[#12161a] border-cyber-border relative overflow-hidden flex flex-col justify-between h-24 cursor-pointer hover:border-zinc-800 transition-all"
+          className="p-5 border-emerald-500/20 bg-emerald-950/5 relative overflow-hidden flex flex-col items-center justify-center h-28 text-center"
         >
-          <div className="absolute bottom-1 right-1 text-neon-green/10 opacity-30 select-none pointer-events-none">
-            <Shield size={56} className="stroke-[1.5]" />
+          <div className="absolute bottom-1 right-1 text-emerald-500/10 opacity-20 pointer-events-none">
+            <Shield size={72} className="stroke-[1.5]" />
           </div>
-          <span className="text-[9px] text-neon-green font-black uppercase tracking-widest block select-none">
+          <span className="text-[10px] text-emerald-400 font-black uppercase tracking-widest block mb-2">
             PROTEGIDO
           </span>
-          <span className="text-2xl font-black text-neon-green text-glow-green tabular-nums leading-none mb-1">
-            R$ {realMoneySaved.toFixed(2).replace('.', ',')}
-          </span>
+          <div className="flex items-baseline justify-center leading-none">
+            <span className="text-emerald-400 font-black text-base mr-1">R$</span>
+            <span className="text-3xl font-black text-white tabular-nums">
+              {realMoneySaved.toFixed(2).replace('.', ',')}
+            </span>
+          </div>
         </Card>
       </div>
 
-      {/* Two Large Action Buttons */}
-      <div className="space-y-3 z-10 relative">
+      {/* Vertical buttons stack */}
+      <div className="flex flex-col gap-3.5 mt-6 w-full">
+        {/* ACESSAR EXTRATO REAL */}
         <button
           onClick={() => {
-            casinoAudio.playWarning()
-            alert("Acessando extrato real - lembre-se: cada perda virtual evitada é dinheiro no seu bolso real!")
+            casinoAudio.playTick()
+            setTab('extrato')
           }}
-          className="w-full py-4 bg-neon-red hover:bg-neon-red-glow text-white font-black text-xs uppercase tracking-widest rounded-xl transition-all cursor-pointer flex items-center justify-center gap-2.5 shadow-[0_4px_15px_rgba(255,51,68,0.2)]"
+          className="w-full py-4 bg-[#ff3344] hover:bg-[#ff4d5a] text-white font-black text-xs uppercase tracking-widest rounded-xl transition-all cursor-pointer flex items-center justify-center gap-2.5 shadow-[0_4px_15px_rgba(255,51,68,0.3)] hover:scale-[1.01]"
         >
-          <Activity size={16} />
+          <Activity size={16} className="stroke-[2.5]" />
           ACESSAR EXTRATO REAL
         </button>
 
+        {/* GUIA DE AJUDA S.O.S */}
         <button
           onClick={() => {
             casinoAudio.playTick()
             alert("Abrindo Guia de Ajuda S.O.S. com links úteis de acolhimento.")
           }}
-          className="w-full py-4 bg-transparent hover:bg-zinc-800/10 border border-zinc-800 text-zinc-300 font-black text-xs uppercase tracking-widest rounded-xl transition-all cursor-pointer flex items-center justify-center gap-2.5"
+          className="w-full py-4 bg-[#12161a] border border-zinc-800 hover:border-zinc-700 hover:bg-zinc-900/40 text-zinc-300 font-black text-xs uppercase tracking-widest rounded-xl transition-all cursor-pointer flex items-center justify-center gap-2.5"
         >
           <BookOpen size={16} />
           GUIA DE AJUDA S.O.S
         </button>
+
+        {/* DIÁRIO PRO PSI */}
+        <button
+          onClick={() => {
+            casinoAudio.playTick()
+            window.print()
+          }}
+          className="w-full py-4 bg-[#12161a] border border-zinc-800 hover:border-zinc-700 hover:bg-zinc-900/40 text-zinc-300 font-black text-xs uppercase tracking-widest rounded-xl transition-all cursor-pointer flex items-center justify-center gap-2.5"
+        >
+          <ClipboardList size={16} />
+          DIÁRIO PRO PSI
+        </button>
       </div>
 
-      {/* Cooldown control card */}
-      <Card className="p-5 space-y-4 text-left bg-[#12161a]">
-        <div className="flex items-center gap-2 text-neon-red select-none">
-          <Shield size={18} className={!modoCritico ? "text-glow-red" : ""} />
-          <h3 className="text-xs font-black text-white uppercase tracking-wider font-display">
-            Bloqueio de Impulsividade (Autoexclusão)
-          </h3>
-        </div>
-
-        {cooldownActive ? (
-          <div className="bg-zinc-950 border border-red-950/60 p-4 rounded-xl text-center space-y-2">
-            <span className="text-[9px] text-red-400 font-black uppercase tracking-widest block select-none">
-              Simuladores Bloqueados
-            </span>
-            <div className="text-2xl font-black text-white tracking-widest tabular-nums text-glow-red">
-              {formatCooldownTime(cooldownTimeLeft)}
-            </div>
-            <p className="text-[9px] text-zinc-400 font-medium">
-              O acesso aos simuladores está desativado para te afastar do gatilho e resfriar a impulsividade. Use este tempo para respirar e descansar.
-            </p>
+      {/* PORTALED PRINT REPORT SHEET */}
+      {createPortal(
+        <div className="print-report-sheet hidden text-left bg-white text-black p-10 font-sans">
+          {/* Header */}
+          <div className="text-center border-b-2 border-gray-900 pb-4 mb-6">
+            <h1 className="text-2xl font-extrabold uppercase tracking-tight text-black">
+              RDBET - PROTOCOLO CLÍNICO DE REDUÇÃO DE DANOS
+            </h1>
+            <h2 className="text-sm font-bold uppercase tracking-widest text-gray-600 mt-1">
+              Prontuário e Histórico de Monitoramento de Ludopatia
+            </h2>
           </div>
-        ) : (
-          <div className="space-y-3">
-            <p className="text-[10px] text-zinc-400 leading-relaxed font-medium">
-              Se você está sentindo uma fissura intensa, ative um temporizador abaixo. Isso bloqueará o acesso a todos os simuladores da RDBET pelo período selecionado.
-            </p>
-            <div className="grid grid-cols-3 gap-2">
-              <Button
-                onClick={() => handleSetCooldown(1)}
-                variant="secondary"
-                size="sm"
-              >
-                1 Hora
-              </Button>
-              <Button
-                onClick={() => handleSetCooldown(6)}
-                variant="secondary"
-                size="sm"
-              >
-                6 Horas
-              </Button>
-              <Button
-                onClick={() => handleSetCooldown(24)}
-                variant="secondary"
-                size="sm"
-              >
-                24 Horas
-              </Button>
+
+          {/* Details Section */}
+          <div className="grid grid-cols-2 gap-4 mb-6 text-sm">
+            <div>
+              <p className="font-bold">Usuário: <span className="font-normal">{userName || 'Paciente Desconhecido'}</span></p>
+              <p className="font-bold">Data de Emissão: <span className="font-normal">{currentDate}</span></p>
+            </div>
+            <div>
+              <p className="font-bold">Plano de Redução: <span className="font-normal">{selectedPlan === 'unlimited' ? 'Ilimitado (Manutenção)' : `${selectedPlan} Dias`}</span></p>
+              <p className="font-bold">Dia Clínico: <span className="font-normal">Dia {simulatedDay}</span></p>
             </div>
           </div>
-        )}
-      </Card>
 
-      {/* Saturation and Plan Desmame debug card */}
-      {registered && (
-        <Card className="p-5 space-y-4 text-left bg-[#12161a] border border-cyber-border">
-          <div className="flex items-center gap-2 text-neon-green select-none">
-            <Sparkles size={18} className="text-glow-green" />
-            <h3 className="text-xs font-black text-white uppercase tracking-wider font-display">
-              Desmame de Estímulos (Dopamina)
+          {/* Clinical stats summary */}
+          <div className="grid grid-cols-3 gap-3 text-center mb-6">
+            <div className="p-3 border border-gray-300 rounded bg-gray-50">
+              <span className="text-[10px] font-bold text-gray-500 uppercase block">Sobriedade</span>
+              <span className="text-xl font-extrabold">{streak} Dias Limpos</span>
+            </div>
+            <div className="p-3 border border-gray-300 rounded bg-gray-50">
+              <span className="text-[10px] font-bold text-gray-500 uppercase block">Saldo Economizado</span>
+              <span className="text-xl font-extrabold text-emerald-800">R$ {realMoneySaved.toFixed(2)}</span>
+            </div>
+            <div className="p-3 border border-gray-300 rounded bg-gray-50">
+              <span className="text-[10px] font-bold text-gray-500 uppercase block">Simulação de Perdas</span>
+              <span className="text-xl font-extrabold text-red-700">R$ {simulatedMoneyLost.toFixed(2)}</span>
+            </div>
+          </div>
+
+          {/* Activities list */}
+          <div className="mb-8">
+            <h3 className="text-xs font-black uppercase text-gray-800 tracking-wider mb-2">
+              Histórico de Registro de Atividades Recentes
             </h3>
+            <table className="min-w-full text-xs">
+              <thead>
+                <tr>
+                  <th className="w-1/4">Data / Hora</th>
+                  <th className="w-1/4">Categoria</th>
+                  <th className="w-2/4">Detalhes do Evento</th>
+                </tr>
+              </thead>
+              <tbody>
+                {activityHistory.length === 0 ? (
+                  <tr>
+                    <td colSpan={3} className="text-center py-4 text-gray-400">Nenhum evento registrado</td>
+                  </tr>
+                ) : (
+                  activityHistory.map((act) => (
+                    <tr key={act.id}>
+                      <td>{new Date(act.timestamp).toLocaleString('pt-BR')}</td>
+                      <td className="font-bold">
+                        {act.type === 'cadastro' && 'Cadastro'}
+                        {act.type === 'gameplay' && 'Gameplay'}
+                        {act.type === 'mapeamento' && 'Mapeamento'}
+                        {act.type === 'checkin' && 'Checkin'}
+                      </td>
+                      <td>{act.description}</td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
           </div>
 
-          <div className="space-y-3">
-            <p className="text-[10px] text-zinc-400 leading-relaxed font-medium">
-              À medida que os dias passam em seu plano, a RDBET reduz as cores neon (saturação CSS) e o volume de sons sintéticos para dessensibilizar seu cérebro de picos fáceis de excitação.
-            </p>
+          {/* Mapeamentos list */}
+          <div className="mb-8">
+            <h3 className="text-xs font-black uppercase text-gray-800 tracking-wider mb-2">
+              Histórico do Mapeamento do Momento (Gatilhos e Reflexões)
+            </h3>
+            <table className="min-w-full text-xs">
+              <thead>
+                <tr>
+                  <th className="w-1/5">Data / Hora</th>
+                  <th className="w-1/5">Humor</th>
+                  <th className="w-1/5">Intensidade</th>
+                  <th className="w-2/5">Gatilhos / O que escreveu</th>
+                </tr>
+              </thead>
+              <tbody>
+                {emotionalDiary.length === 0 ? (
+                  <tr>
+                    <td colSpan={4} className="text-center py-4 text-gray-400">Nenhum mapeamento voluntário registrado</td>
+                  </tr>
+                ) : (
+                  emotionalDiary.map((log) => (
+                    <tr key={log.id}>
+                      <td>{new Date(log.timestamp).toLocaleString('pt-BR')}</td>
+                      <td className="font-bold uppercase text-red-600">{log.mood}</td>
+                      <td className="font-bold">{log.intensity}/10</td>
+                      <td>
+                        <div><strong>Gatilho Relatado:</strong> {log.trigger}</div>
+                        {log.notes && <div className="mt-1 text-gray-600"><strong>Observações:</strong> {log.notes}</div>}
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
 
-            <div className="bg-zinc-950 border border-cyber-border p-3 rounded-xl space-y-2 text-xs">
-              <div className="flex justify-between items-center text-[10px]">
-                <span className="text-zinc-500 font-extrabold uppercase">Plano Selecionado</span>
-                <span className="text-white font-extrabold uppercase">
-                  {selectedPlan === '30' && 'Redução 30 Dias'}
-                  {selectedPlan === '60' && 'Redução 60 Dias'}
-                  {selectedPlan === 'unlimited' && 'Sem Limite (Fixo)'}
-                </span>
-              </div>
-
-              <div className="flex justify-between items-center text-[10px]">
-                <span className="text-zinc-500 font-extrabold uppercase">Dia do Processo</span>
-                <span className="text-white font-black">
-                  Dia {simulatedDay} {selectedPlan !== 'unlimited' && `de ${selectedPlan}`}
-                </span>
-              </div>
-
-              {selectedPlan !== 'unlimited' && (
-                <div className="space-y-1.5">
-                  <div className="flex justify-between items-center text-[9px] text-zinc-500">
-                    <span>Saturação Visual</span>
-                    <span className="font-bold text-neon-green">
-                      {Math.round((selectedPlan === '30' ? Math.max(0, 1 - (simulatedDay - 1) / 30) : Math.max(0, 1 - (simulatedDay - 1) / 60)) * 100)}%
-                    </span>
-                  </div>
-                  {/* Progress bar */}
-                  <div className="w-full h-1.5 bg-zinc-900 border border-zinc-800 rounded-full overflow-hidden">
-                    <div 
-                      className="h-full bg-neon-green transition-all duration-300"
-                      style={{ 
-                        width: `${Math.round((selectedPlan === '30' ? Math.max(0, 1 - (simulatedDay - 1) / 30) : Math.max(0, 1 - (simulatedDay - 1) / 60)) * 100)}%` 
-                      }}
-                    />
-                  </div>
-                </div>
-              )}
+          {/* Signoff signatures */}
+          <div className="grid grid-cols-2 gap-8 pt-8 border-t border-gray-300 text-xs">
+            <div className="flex flex-col items-center">
+              <div className="w-48 border-b border-gray-400 mt-12 mb-2" />
+              <p className="font-bold text-gray-600">Assinatura do Paciente / Usuário</p>
             </div>
-
-            <Button
-              onClick={() => {
-                casinoAudio.playTick()
-                advanceDay()
-              }}
-              variant="primary"
-              glow
-              className="w-full text-xs font-black py-3.5"
-            >
-              <RefreshCw size={14} className="animate-spin" style={{ animationDuration: '4s' }} />
-              Simular Avanço de Dia (+1 Dia)
-            </Button>
+            <div className="flex flex-col items-center">
+              <div className="w-48 border-b border-gray-400 mt-12 mb-2" />
+              <p className="font-bold text-gray-600">Terapeuta Responsável / CRP</p>
+            </div>
           </div>
-        </Card>
+
+          {/* Footer Disclaimer */}
+          <div className="mt-12 text-[10px] text-gray-500 text-center leading-relaxed">
+            Este documento é gerado de forma digital e representa a consolidação do diário pessoal de redução de danos RDBET. O aplicativo apoia a terapia cognitivo-comportamental, servindo como registro voluntário do paciente.
+          </div>
+        </div>,
+        document.body
       )}
 
-      {/* Guided breathing box */}
-      <div className="text-left">
-        <BreathingBox />
-      </div>
+      {/* PORTALED PROFILE EDIT MODAL */}
+      {createPortal(
+        <AnimatePresence>
+          {editProfileOpen && (
+            <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/85 backdrop-blur-sm">
+              <motion.div
+                initial={{ scale: 0.95, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.95, opacity: 0 }}
+                className="w-full max-w-sm bg-[#12161a] border-2 border-cyber-border rounded-2xl p-5 shadow-2xl relative overflow-hidden text-white"
+              >
+                {/* Header */}
+                <div className="flex justify-between items-center mb-4 pb-2 border-b border-cyber-border">
+                  <span className="text-xs font-black uppercase text-white tracking-widest">
+                    Editar Perfil
+                  </span>
+                  <button
+                    onClick={() => {
+                      casinoAudio.playTick()
+                      setEditProfileOpen(false)
+                    }}
+                    className="text-zinc-500 hover:text-white font-extrabold text-xs cursor-pointer uppercase tracking-widest bg-transparent border-none"
+                  >
+                    Fechar
+                  </button>
+                </div>
 
-      {/* Reset progress and settings */}
-      <Card className="p-5 space-y-3.5 text-left bg-[#12161a]">
-        <div className="flex justify-between items-start">
-          <div className="space-y-1">
-            <div className="flex items-center gap-2 text-neon-yellow select-none">
-              <EyeOff size={18} className={!modoCritico ? "text-glow-yellow" : ""} />
-              <h3 className="text-xs font-black text-white uppercase tracking-wider font-display">
-                Modo Crítico (Redutor de Estímulos)
-              </h3>
+                <form onSubmit={handleSaveProfile} className="space-y-4">
+                  {/* Name Input */}
+                  <div className="space-y-1.5 text-left">
+                    <label className="text-[10px] text-zinc-500 font-black uppercase tracking-wider block">
+                      Nome do Jogador
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={newName}
+                      onChange={(e) => setNewName(e.target.value)}
+                      placeholder="Digite seu nome ou apelido"
+                      className="w-full bg-zinc-950 border border-cyber-border rounded-xl px-4 py-3 text-xs text-white placeholder-zinc-700 focus:border-neon-green focus:outline-none transition-colors"
+                    />
+                  </div>
+
+                  {/* Avatar Picker */}
+                  <div className="space-y-1.5 text-left">
+                    <label className="text-[10px] text-zinc-500 font-black uppercase tracking-wider block">
+                      Escolha uma Foto de Perfil
+                    </label>
+                    <div className="grid grid-cols-2 gap-3 mt-2">
+                      {avatars.map((av) => (
+                        <button
+                          key={av.id}
+                          type="button"
+                          onClick={() => {
+                            casinoAudio.playTick()
+                            setSelectedAvatarId(av.id)
+                          }}
+                          className={cn(
+                            "p-3 bg-zinc-950 border-2 rounded-xl flex flex-col items-center justify-center gap-2 cursor-pointer transition-all hover:border-neon-green/45",
+                            selectedAvatarId === av.id 
+                              ? 'border-neon-green bg-zinc-900 shadow-[0_0_10px_rgba(0,255,60,0.15)] scale-102' 
+                              : 'border-zinc-800 text-zinc-400 hover:border-zinc-700'
+                          )}
+                        >
+                          <div className="w-12 h-12 rounded-full border border-zinc-800 flex items-center justify-center overflow-hidden bg-[#12161a]">
+                            {!failedAvatars[av.id] ? (
+                              <img 
+                                src={`${import.meta.env.BASE_URL}avatars/avatar${av.id}.png`}
+                                alt={av.label}
+                                className="w-full h-full object-cover rounded-full"
+                                onError={() => setFailedAvatars(prev => ({ ...prev, [av.id]: true }))}
+                              />
+                            ) : (
+                              <span className="text-xl">{av.emoji}</span>
+                            )}
+                          </div>
+                          <span className="text-[8px] font-black uppercase tracking-wider">{av.label}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Submit buttons */}
+                  <div className="flex gap-2 pt-2">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        casinoAudio.playTick()
+                        setEditProfileOpen(false)
+                      }}
+                      className="w-1/2 py-3 bg-zinc-900 border border-cyber-border text-zinc-400 hover:text-white font-black text-xs uppercase tracking-widest rounded-xl transition-all cursor-pointer text-center"
+                    >
+                      Cancelar
+                    </button>
+                    <button
+                      type="submit"
+                      className="w-1/2 py-3 bg-neon-green hover:bg-neon-green-glow text-black font-black text-xs uppercase tracking-widest rounded-xl transition-all cursor-pointer text-center border-none"
+                    >
+                      Salvar
+                    </button>
+                  </div>
+                </form>
+              </motion.div>
             </div>
-            <p className="text-[10px] text-zinc-400 max-w-[85%] leading-relaxed font-medium">
-              Desliga as cores neon piscantes, reduz brilhos e remove transições dinâmicas. Ideal para momentos em que o cérebro procura excitação visual.
-            </p>
-          </div>
-
-          <button
-            onClick={handleToggleCritico}
-            className={cn(
-              "w-11 h-6 rounded-full p-0.5 transition-colors duration-200 cursor-pointer relative shrink-0",
-              modoCritico ? "bg-zinc-700" : "bg-[#00ff3c]"
-            )}
-          >
-            <div
-              className={cn(
-                "w-5 h-5 bg-black rounded-full shadow-md transform transition-transform duration-200",
-                modoCritico ? "translate-x-0" : "translate-x-5"
-              )}
-            />
-          </button>
-        </div>
-      </Card>
-
-      {/* Support hotlines */}
-      <Card className="p-5 space-y-3.5 text-left bg-[#12161a]">
-        <div className="flex items-center gap-2 text-neon-red select-none">
-          <PhoneCall size={18} className="text-glow-red" />
-          <h3 className="text-xs font-black text-white uppercase tracking-wider font-display">
-            Rede de Apoio e Emergência (SOS)
-          </h3>
-        </div>
-
-        <p className="text-[10px] text-zinc-400 leading-relaxed font-medium">
-          Você não está sozinho nessa jornada. Em momentos de fissura incontrolável ou desespero, entre em contato imediatamente com canais de ajuda especializados:
-        </p>
-
-        <div className="space-y-2.5">
-          <a
-            href="tel:188"
-            onClick={() => casinoAudio.playTick()}
-            className="flex items-center justify-between p-3 bg-zinc-950 hover:bg-zinc-800 border border-zinc-800 rounded-xl group transition-all"
-          >
-            <div className="space-y-0.5">
-              <span className="text-xs font-black text-white group-hover:text-neon-red transition-colors">
-                CVV - Centro de Valorização da Vida
-              </span>
-              <p className="text-[9px] text-zinc-500 font-medium">Atendimento telefônico gratuito e sigiloso 24 horas.</p>
-            </div>
-            <span className="text-xs font-black text-neon-red text-glow-red bg-red-950/20 px-2.5 py-1 rounded-lg border border-red-500/20 select-none">
-              Ligue 188
-            </span>
-          </a>
-
-          <div className="p-3 bg-zinc-950 border border-zinc-800 rounded-xl space-y-1">
-            <span className="text-xs font-black text-white">CAPS (Rede Pública de Saúde)</span>
-            <p className="text-[9px] text-zinc-500 font-medium">
-              O SUS oferece tratamento especializado e gratuito para ludopatia e vícios. Procure a unidade CAPS Ad (Álcool e Drogas/Transtornos) mais próxima de sua casa.
-            </p>
-          </div>
-        </div>
-        
-        <div className="pt-2 border-t border-cyber-border flex justify-between items-center text-zinc-500 text-[10px]">
-          <span>Reset de progresso local:</span>
-          <button
-            onClick={handleReset}
-            className="px-2.5 py-1 border border-zinc-800 hover:bg-zinc-800 rounded text-zinc-400 hover:text-white transition-colors cursor-pointer"
-          >
-            Resetar
-          </button>
-        </div>
-      </Card>
+          )}
+        </AnimatePresence>,
+        document.body
+      )}
     </div>
   )
 }

@@ -36,6 +36,17 @@ export const CognitiveOverlay: React.FC<CognitiveOverlayProps> = ({
     return () => clearInterval(interval)
   }, [isOpen])
 
+  // Disable body scroll when modal is open
+  useEffect(() => {
+    if (isOpen) {
+      const originalOverflow = document.body.style.overflow
+      document.body.style.overflow = 'hidden'
+      return () => {
+        document.body.style.overflow = originalOverflow
+      }
+    }
+  }, [isOpen])
+
   // Helper to translate virtual currency to real essentials
   const getRealWorldEquivalent = (val: number) => {
     if (val < 20) {

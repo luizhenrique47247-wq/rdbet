@@ -8,25 +8,25 @@ import { Modal } from '../components/ui/Modal'
 import { cn } from '../utils/cn'
 
 const feedItems = [
-  { name: 'João_99', game: 'CRASH', amount: 240.50 },
+  { name: 'João_99', game: 'SLOTS', amount: 240.50 },
   { name: 'Ana Paula', game: 'MINES', amount: 150.00 },
   { name: 'ReiDo***', game: 'ROLETA', amount: 500.00 },
   { name: 'Gamer_X', game: 'DICE', amount: 75.20 },
   { name: 'Tigresa', game: 'SLOTS', amount: 850.00 },
   { name: 'Carlos B.', game: 'DOUBLE', amount: 120.00 },
-  { name: 'User_007', game: 'CRASH', amount: 320.00 },
+  { name: 'User_007', game: 'DOUBLE', amount: 320.00 },
   { name: 'Vini***', game: 'MINES', amount: 259.21 },
   { name: 'Leticia', game: 'ROLETA', amount: 180.00 },
   { name: 'Rafaela_S', game: 'DICE', amount: 95.00 },
   { name: 'Pedro_x', game: 'SLOTS', amount: 620.00 },
   { name: 'Marcos.T', game: 'DOUBLE', amount: 140.00 },
-  { name: 'Silva_Bet', game: 'CRASH', amount: 300.00 },
+  { name: 'Silva_Bet', game: 'ROLETA', amount: 300.00 },
   { name: 'Bruna***', game: 'MINES', amount: 80.00 },
   { name: 'Dopamina99', game: 'ROLETA', amount: 400.00 },
   { name: 'Guga_Bet', game: 'DICE', amount: 110.00 },
   { name: 'Mel_A', game: 'SLOTS', amount: 730.00 },
   { name: 'Felipe_R', game: 'DOUBLE', amount: 210.00 },
-  { name: 'Lucas_98', game: 'CRASH', amount: 350.00 },
+  { name: 'Lucas_98', game: 'SLOTS', amount: 350.00 },
   { name: 'Patty***', game: 'MINES', amount: 190.00 }
 ]
 
@@ -91,7 +91,7 @@ export const Inicio: React.FC = () => {
     },
     {
       q: 'O que é o Reforço Variável?',
-      a: 'É um mecanismo psicológico onde a recompensa é entregue de forma imprevisível (como em slots ou crash). O cérebro humano libera mais dopamina na expectativa da recompensa incerta do que no ganho garantido, criando o ciclo da compulsão. Nossos simuladores expõem esse truque matemático.'
+      a: 'É um mecanismo psicológico onde a recompensa é entregue de forma imprevisível (como em slots ou double). O cérebro humano libera mais dopamina na expectativa da recompensa incerta do que no ganho garantido, criando o ciclo da compulsão. Nossos simuladores expõem esse truque matemático.'
     },
     {
       q: 'Como funciona o Plano de Desmame?',
@@ -117,28 +117,31 @@ export const Inicio: React.FC = () => {
 
       {/* Hero Section (Print 1) */}
       <div className="relative py-8 px-4 flex flex-col items-center justify-center space-y-6 overflow-hidden">
-        {/* Glowing aura background decoration */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 rounded-full bg-neon-green/5 blur-[90px]" />
+
 
         {/* Top nicotine badge */}
-        <div className="inline-flex items-center gap-2 bg-black/90 border border-neon-green/20 rounded-full px-4 py-1.5 text-[9px] text-white font-black tracking-widest uppercase">
-          <span className="w-2 h-2 rounded-full bg-neon-green animate-pulse shadow-[0_0_8px_rgba(0,255,60,0.8)]" />
+        <div className="inline-flex items-center gap-2 bg-black/80 border border-[#00ff3c]/35 rounded-full px-4.5 py-2 text-[9.5px] text-white font-black tracking-widest uppercase shadow-[0_0_12px_rgba(0,255,60,0.15)] select-none z-10">
+          <span className="w-2.5 h-2.5 rounded-full bg-[#00ff3c] animate-pulse shadow-[0_0_10px_#00ff3c]" />
           O ADESIVO DE NICOTINA DAS APOSTAS
         </div>
 
         {/* Title messages */}
         <div className="space-y-1 z-10 w-full flex flex-col items-center">
-          <h1 className="font-bold leading-[1.1] uppercase text-white tracking-tight flex flex-col items-center w-full text-center px-2 font-display">
-            <span className="whitespace-normal break-words" style={{ fontSize: 'clamp(1.8rem, 8vw, 3rem)' }}>{titleSub}</span>
-            <span className="whitespace-normal break-words" style={{ fontSize: 'clamp(2rem, 9vw, 3.5rem)', textShadow: '0 0 10px rgba(255,255,255,0.1)' }}>{titleMid}</span>
-            <span className="text-transparent bg-clip-text bg-gradient-to-b from-neon-green to-[#85ff7a] drop-shadow-[0_0_20px_rgba(57,255,20,0.5)] whitespace-normal mt-2" style={{ fontSize: 'clamp(2.2rem, 10vw, 4rem)' }}>
+          <h1 className="flex flex-col items-center w-full text-center px-1 font-display font-black leading-[0.9] tracking-tighter">
+            <span className="text-white uppercase select-none" style={{ fontSize: 'clamp(2.1rem, 9.5vw, 3.8rem)' }}>
+              {titleSub}
+            </span>
+            <span className="text-white uppercase select-none mt-1" style={{ fontSize: 'clamp(2.1rem, 9.5vw, 3.8rem)' }}>
+              {titleMid}
+            </span>
+            <span className="text-[#00ff3c] uppercase select-none mt-2 text-glow-green font-black" style={{ fontSize: 'clamp(2.5rem, 11.5vw, 4.5rem)' }}>
               {titleBot}
             </span>
           </h1>
         </div>
 
         {/* Paragraph description */}
-        <p className="text-[11px] text-zinc-400 font-medium max-w-[92%] leading-relaxed z-10 mx-auto">
+        <p className="text-[11px] text-zinc-400 font-semibold max-w-[85%] leading-relaxed z-10 mx-auto select-none">
           {descText}
         </p>
 
@@ -149,7 +152,7 @@ export const Inicio: React.FC = () => {
               casinoAudio.playTick()
               setShowRegisterModal(true)
             }}
-            className="w-full max-w-[300px] py-4 bg-neon-green hover:bg-neon-green-glow text-black font-black text-sm uppercase tracking-widest rounded-xl transition-all cursor-pointer shadow-[0_4px_20px_rgba(0,255,60,0.3)] hover:scale-[1.02]"
+            className="w-full max-w-[280px] py-4.5 bg-[#00ff3c] hover:bg-[#39ff14] text-black font-black text-sm uppercase tracking-widest rounded-2xl transition-all cursor-pointer shadow-[0_0_35px_#00ff3c] hover:shadow-[0_0_50px_#39ff14] hover:scale-[1.01] duration-200 active:scale-[0.99] z-10"
           >
             CADASTRAR
           </button>
@@ -160,7 +163,7 @@ export const Inicio: React.FC = () => {
                 casinoAudio.playTick()
                 setTab('missoes')
               }}
-              className="w-full max-w-[300px] py-4 bg-transparent hover:bg-neon-green/5 border-2 border-neon-green rounded-xl text-neon-green font-black text-xs uppercase tracking-widest transition-all cursor-pointer flex items-center justify-center gap-3 shadow-[0_0_15px_rgba(0,255,60,0.15)] hover:shadow-[0_0_25px_rgba(0,255,60,0.35)]"
+              className="w-full max-w-[280px] py-4.5 bg-transparent hover:bg-neon-green/5 border-2 border-[#00ff3c] rounded-2xl text-[#00ff3c] font-black text-xs uppercase tracking-widest transition-all cursor-pointer flex items-center justify-center gap-3 shadow-[0_0_25px_#00ff3c] hover:shadow-[0_0_35px_#39ff14] hover:scale-[1.01]"
             >
               <Gift size={18} className="stroke-[2.5]" />
               <span className="tracking-widest mt-1">
@@ -379,7 +382,15 @@ export const Inicio: React.FC = () => {
           </div>
 
           <div className="feed-mask">
-            <div className="animate-scroll-up-loop flex flex-col">
+            <motion.div
+              animate={{ y: ["0%", "-50%"] }}
+              transition={{
+                ease: "linear",
+                duration: 25,
+                repeat: Infinity
+              }}
+              className="flex flex-col"
+            >
               {doubleFeedItems.map((item, idx) => (
                 <div
                   key={idx}
@@ -395,7 +406,7 @@ export const Inicio: React.FC = () => {
                   </span>
                 </div>
               ))}
-            </div>
+            </motion.div>
           </div>
         </div>
       </div>

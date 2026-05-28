@@ -7,8 +7,8 @@ import { Card } from '../ui/Card'
 
 export const TriggerForm: React.FC = () => {
   const { addEmotionalLog } = useStore()
-  const [mood, setMood] = useState<'ancioso' | 'tedio' | 'estressado' | 'impulso' | 'calmo' | 'triste'>('calmo')
-  const [intensity, setIntensity] = useState<number>(3)
+  const [mood, setMood] = useState<'ansioso' | 'tedio' | 'estressado' | 'impulso' | 'calmo' | 'triste'>('calmo')
+  const [intensity, setIntensity] = useState<number>(5)
   const [trigger, setTrigger] = useState('')
   const [notes, setNotes] = useState('')
   const [logSubmitted, setLogSubmitted] = useState(false)
@@ -51,7 +51,7 @@ export const TriggerForm: React.FC = () => {
             {[
               { id: 'calmo', label: 'Calmo', bg: 'hover:border-emerald-500/40 text-emerald-400' },
               { id: 'tedio', label: 'Tédio', bg: 'hover:border-blue-500/40 text-blue-400' },
-              { id: 'ancioso', label: 'Ansioso', bg: 'hover:border-yellow-500/40 text-yellow-400' },
+              { id: 'ansioso', label: 'Ansioso', bg: 'hover:border-yellow-500/40 text-yellow-400' },
               { id: 'estressado', label: 'Estressado', bg: 'hover:border-purple-500/40 text-purple-400' },
               { id: 'impulso', label: 'Impulso', bg: 'hover:border-red-500/40 text-red-500' },
               { id: 'triste', label: 'Triste', bg: 'hover:border-zinc-500/40 text-zinc-400' }
@@ -85,13 +85,13 @@ export const TriggerForm: React.FC = () => {
               Intensidade da Vontade de Apostar
             </label>
             <span className="text-xs font-extrabold text-neon-green tabular-nums">
-              {intensity} / 5
+              {intensity} / 10
             </span>
           </div>
           <input
             type="range"
-            min="1"
-            max="5"
+            min="0"
+            max="10"
             value={intensity}
             onChange={(e) => setIntensity(parseInt(e.target.value))}
             className="w-full accent-neon-green bg-zinc-950 rounded-lg cursor-pointer h-2 border border-cyber-border"

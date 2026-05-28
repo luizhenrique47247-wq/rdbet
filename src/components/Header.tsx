@@ -1,24 +1,20 @@
 import React, { useState } from 'react'
 import { useStore } from '../store/useStore'
-import { Shield, Award, Plus } from 'lucide-react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { Shield, Plus } from 'lucide-react'
 import { Button } from './ui/Button'
 import { Modal } from './ui/Modal'
 import { BalanceCounter } from './ui/BalanceCounter'
 import { casinoAudio } from '../utils/audioEngine'
+import { cn } from '../utils/cn'
 
 export const Header: React.FC = () => {
-  const { balance, addBalance, registered, setTab } = useStore()
+  const { balance, registered, setTab, activeGame } = useStore()
   const [showLoadModal, setShowLoadModal] = useState(false)
-  const [loadedAmount, setLoadedAmount] = useState<number | null>(null)
 
-  const handleAddFictiveFunds = () => {
-    casinoAudio.playWinMelody()
-    addBalance(100)
-    setLoadedAmount(100)
-    setTimeout(() => {
-      setLoadedAmount(null)
-    }, 2000)
+  const handleConfirmRedirect = () => {
+    casinoAudio.playTick()
+    setTab('missoes')
+    setShowLoadModal(false)
   }
 
   const handleHeaderRegister = () => {
@@ -28,16 +24,67 @@ export const Header: React.FC = () => {
     window.dispatchEvent(new CustomEvent('open-register-modal'))
   }
 
+  const themeColors = {
+    slots: {
+      text: 'text-[#a855f7]',
+      bg: 'bg-[#a855f7] hover:bg-[#b46ef8]',
+      glow: 'shadow-lg shadow-[#a855f7]/20',
+      shield: 'bg-purple-950/30 border-[#a855f7]/40 text-[#a855f7] drop-shadow-[0_0_10px_rgba(168,85,247,0.3)]'
+    },
+    double: {
+      text: 'text-[#ef4444]',
+      bg: 'bg-[#ef4444] hover:bg-[#f87171]',
+      glow: 'shadow-lg shadow-[#ef4444]/20',
+      shield: 'bg-red-950/30 border-[#ef4444]/40 text-[#ef4444] drop-shadow-[0_0_10px_rgba(239,68,68,0.3)]'
+    },
+    roleta: {
+      text: 'text-[#3b82f6]',
+      bg: 'bg-[#3b82f6] hover:bg-[#60a5fa]',
+      glow: 'shadow-lg shadow-[#3b82f6]/20',
+      shield: 'bg-blue-950/30 border-[#3b82f6]/40 text-[#3b82f6] drop-shadow-[0_0_10px_rgba(59,130,246,0.3)]'
+    },
+    mines: {
+      text: 'text-[#facc15]',
+      bg: 'bg-[#facc15] hover:bg-[#fde047]',
+      glow: 'shadow-lg shadow-[#facc15]/20',
+      shield: 'bg-yellow-950/30 border-[#facc15]/40 text-[#facc15] drop-shadow-[0_0_10px_rgba(250,204,21,0.3)]'
+    },
+    dice: {
+      text: 'text-[#ec4899]',
+      bg: 'bg-[#ec4899] hover:bg-[#f472b6]',
+      glow: 'shadow-lg shadow-[#ec4899]/20',
+      shield: 'bg-pink-950/30 border-[#ec4899]/40 text-[#ec4899] drop-shadow-[0_0_10px_rgba(236,72,153,0.3)]'
+    },
+    mental: {
+      text: 'text-[#10b981]',
+      bg: 'bg-[#10b981] hover:bg-[#34d399]',
+      glow: 'shadow-lg shadow-[#10b981]/20',
+      shield: 'bg-emerald-950/30 border-[#10b981]/40 text-[#10b981] drop-shadow-[0_0_10px_rgba(16,185,129,0.3)]'
+    }
+  }
+
+  const currentTheme = (activeGame && themeColors[activeGame as keyof typeof themeColors]) || {
+    text: 'text-neon-green',
+    bg: 'bg-neon-green hover:bg-neon-green-glow',
+    glow: 'shadow-lg shadow-neon-green/20',
+    shield: 'bg-emerald-950/30 border-neon-green/40 text-neon-green glow-green'
+  }
+
+  const accentTextClass = currentTheme.text
+  const accentBgClass = currentTheme.bg
+  const accentGlowClass = currentTheme.glow
+  const shieldBgClass = currentTheme.shield
+
   return (
     <>
-      <header className="w-full border-b border-cyber-border bg-[#0b0d10] px-4 py-3.5 flex items-center justify-between z-40 shrink-0">
+      <header className="w-full border-b border-cyber-border bg-[#0b0d10]/45 backdrop-blur-md px-4 py-3.5 flex items-center justify-between z-40 shrink-0">
         {/* Logo Section */}
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-emerald-950/30 border border-neon-green/40 flex items-center justify-center text-neon-green glow-green">
+          <div className={cn("w-8 h-8 rounded-lg flex items-center justify-center border", shieldBgClass)}>
             <Shield size={18} className="stroke-[2.5]" />
           </div>
           <span className="font-black text-xl tracking-wide text-white logo-font select-none">
-            RD<span className="text-neon-green">BET</span>
+            RD<span className={accentTextClass}>BET</span>
           </span>
         </div>
 
@@ -46,7 +93,7 @@ export const Header: React.FC = () => {
           {!registered ? (
             <button
               onClick={handleHeaderRegister}
-              className="px-4 py-2.5 bg-neon-green hover:bg-neon-green-glow text-black font-black text-xs uppercase tracking-widest rounded-lg transition-all cursor-pointer shadow-lg shadow-neon-green/20"
+              className={cn("px-4 py-2.5 text-black font-black text-xs uppercase tracking-widest rounded-lg transition-all cursor-pointer", accentBgClass, accentGlowClass)}
             >
               CADASTRAR
             </button>
@@ -68,7 +115,7 @@ export const Header: React.FC = () => {
                   casinoAudio.playTick()
                   setShowLoadModal(true)
                 }}
-                className="w-7 h-7 rounded-full bg-neon-green hover:bg-neon-green-glow text-black flex items-center justify-center transition-all cursor-pointer shadow-lg shadow-neon-green/20"
+                className={cn("w-7 h-7 rounded-full text-black flex items-center justify-center transition-all cursor-pointer", accentBgClass, accentGlowClass)}
                 title="Carregar Moedas Fictícias"
               >
                 <Plus size={16} className="stroke-[3]" />
@@ -99,36 +146,21 @@ export const Header: React.FC = () => {
 
         <div className="flex flex-col gap-2 mt-4">
           <Button
-            onClick={handleAddFictiveFunds}
+            onClick={handleConfirmRedirect}
             variant="primary"
             glow
-            className="w-full py-3 text-xs"
+            className="w-full py-3.5 text-xs font-black tracking-widest uppercase"
           >
-            <Award size={16} />
-            Resgatar +R$ 100,00 Fictícios
+            CONFIRMO
           </Button>
           <Button
             onClick={() => setShowLoadModal(false)}
             variant="secondary"
-            className="w-full text-xs"
+            className="w-full text-xs font-black tracking-widest uppercase"
           >
             Fechar Aviso
           </Button>
         </div>
-
-        {/* Floating micro notification */}
-        <AnimatePresence>
-          {loadedAmount && (
-            <motion.div
-              initial={{ y: 20, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              exit={{ y: -20, opacity: 0 }}
-              className="absolute bottom-16 left-1/2 -translate-x-1/2 bg-[#12161a] border border-neon-green/30 text-neon-green px-4 py-2 rounded-lg text-xs font-bold flex items-center gap-1.5 shadow-xl"
-            >
-              +R$ 100,00 virtuais creditados!
-            </motion.div>
-          )}
-        </AnimatePresence>
       </Modal>
     </>
   )

@@ -1,8 +1,8 @@
 export interface EmotionalLog {
   id: string
   timestamp: string
-  mood: 'ancioso' | 'tedio' | 'estressado' | 'impulso' | 'calmo' | 'triste'
-  intensity: number // 1 to 5
+  mood: 'ansioso' | 'tedio' | 'estressado' | 'impulso' | 'calmo' | 'triste'
+  intensity: number // 0 to 10 scale
   trigger: string
   notes: string
 }

@@ -43,14 +43,24 @@
   box-shadow: 0 0 15px rgba(255, 204, 0, 0.25);
   border-color: rgba(255, 204, 0, 0.4);
 }
+.glow-pink {
+  box-shadow: 0 0 15px rgba(236, 72, 153, 0.25);
+  border-color: rgba(236, 72, 153, 0.4);
+}
 .text-glow-green {
-  text-shadow: 0 0 12px rgba(0, 255, 60, 0.7);
+  text-shadow: 0 0 8px #00ff3c, 0 0 16px rgba(0, 255, 60, 0.8), 0 0 32px rgba(0, 255, 60, 0.4);
 }
 .text-glow-red {
   text-shadow: 0 0 12px rgba(255, 51, 68, 0.7);
 }
 .text-glow-yellow {
   text-shadow: 0 0 12px rgba(255, 204, 0, 0.7);
+}
+.text-glow-purple {
+  text-shadow: 0 0 8px #a855f7, 0 0 16px rgba(168, 85, 247, 0.8), 0 0 32px rgba(168, 85, 247, 0.4);
+}
+.text-glow-pink {
+  text-shadow: 0 0 8px #ec4899, 0 0 16px rgba(236, 72, 153, 0.8), 0 0 32px rgba(236, 72, 153, 0.4);
 }
 
 /* Glassmorphism utility */
@@ -87,6 +97,188 @@
   animation: pulse-neon-green 2s infinite ease-in-out;
 }
 
+@keyframes pulse-emerald {
+  0%, 100% {
+    box-shadow: 0 0 10px rgba(16, 185, 129, 0.15) !important;
+    border-color: rgba(16, 185, 129, 0.35) !important;
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(16, 185, 129, 0.55) !important;
+    border-color: rgba(16, 185, 129, 0.85) !important;
+  }
+}
+
+.animate-pulse-emerald {
+  animation: pulse-emerald 2s infinite ease-in-out !important;
+}
+
+@keyframes sweep {
+  0% {
+    left: -110%;
+  }
+  50%, 100% {
+    left: 160%;
+  }
+}
+
+.animate-sweep {
+  animation: sweep 3s infinite ease-in-out !important;
+}
+
+@keyframes rotateElement {
+  0% {
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
+  100% {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
+}
+
+.legendary-glow-border {
+  position: relative;
+  overflow: hidden;
+  border: none !important;
+  box-shadow: 0 0 10px rgba(16, 185, 129, 0.1);
+  transition: box-shadow 0.3s ease, transform 0.2s ease;
+}
+
+.legendary-glow-border:hover {
+  box-shadow: 0 0 25px rgba(16, 185, 129, 0.45);
+}
+
+.legendary-glow-border::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 250%;
+  height: 250%;
+  background: conic-gradient(
+    from 0deg,
+    transparent 50%,
+    #06b6d4 70%,
+    #10b981 85%,
+    #00ff3c 93%,
+    transparent 100%
+  );
+  animation: rotateElement 3.5s linear infinite;
+  z-index: 0;
+}
+
+.legendary-glow-border:hover::before {
+  animation-duration: 1.8s;
+}
+
+.legendary-glow-inner {
+  position: absolute;
+  inset: 1.5px;
+  background: #12161a;
+  border-radius: 11px;
+  z-index: 1;
+}
+
+/* Heartbeat physical scale animation */
+@keyframes heartbeatScale {
+  0%, 100% {
+    transform: scale(1);
+  }
+  20% {
+    transform: scale(1.15);
+  }
+  40% {
+    transform: scale(0.96);
+  }
+  60% {
+    transform: scale(1.08);
+  }
+}
+
+.animate-heartbeat {
+  animation: heartbeatScale 1.5s infinite ease-in-out;
+}
+
+/* Glow esmeralda text */
+.text-glow-emerald {
+  color: #34d399 !important;
+  text-shadow: 0 0 8px #10b981, 0 0 18px rgba(16, 185, 129, 0.7);
+}
+
+/* Moving Text Gradient for mental health highlight */
+@keyframes textGradient {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+.text-gradient-moving {
+  background: linear-gradient(90deg, #059669, #34d399, #6ee7b7, #34d399, #059669);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: textGradient 4s linear infinite;
+  display: inline-block;
+}
+
+/* Floating Particles Sparks */
+@keyframes floatUpParticle {
+  0% {
+    transform: translateY(110%) scale(0.6);
+    opacity: 0;
+  }
+  20% {
+    opacity: 0.8;
+  }
+  80% {
+    opacity: 0.8;
+  }
+  100% {
+    transform: translateY(-130%) scale(1.3);
+    opacity: 0;
+  }
+}
+
+.particle-spark {
+  position: absolute;
+  bottom: 0;
+  width: 4px;
+  height: 4px;
+  background-color: #34d399;
+  border-radius: 50%;
+  pointer-events: none;
+  box-shadow: 0 0 8px #10b981, 0 0 15px #34d399;
+}
+
+.animate-particle-1 {
+  left: 20%;
+  animation: floatUpParticle 5s infinite linear;
+}
+
+.animate-particle-2 {
+  left: 50%;
+  animation: floatUpParticle 7s infinite linear;
+  animation-delay: 2.2s;
+}
+
+.animate-particle-3 {
+  left: 80%;
+  animation: floatUpParticle 6s infinite linear;
+  animation-delay: 4.1s;
+}
+
+/* Radial Glow Pulse */
+@keyframes radialGlowPulse {
+  0%, 100% {
+    transform: translate(-50%, -50%) scale(0.85);
+    opacity: 0.25;
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(1.2);
+    opacity: 0.6;
+  }
+}
+.animate-radial-glow {
+  animation: radialGlowPulse 5s infinite ease-in-out;
+}
+
 /* Modo Crítico Override rules */
 .modo-critico {
   --color-neon-green: #a1a1aa !important;
@@ -100,6 +292,14 @@
   --color-cyber-border: #44403c !important;
   background-color: #1c1917 !important;
   color: #e7e5e4 !important;
+}
+
+.modo-critico header,
+.modo-critico nav {
+  background-color: #1c1917 !important;
+  background-image: none !important;
+  backdrop-filter: none !important;
+  border-color: #44403c !important;
 }
 
 .modo-critico .glow-green,
@@ -120,14 +320,51 @@
   color: #e7e5e4 !important;
 }
 
-.modo-critico .animate-pulse-green {
+.modo-critico .animate-pulse-green,
+.modo-critico .animate-pulse-emerald {
   animation: none !important;
   border-color: #44403c !important;
+  box-shadow: none !important;
 }
 
-.modo-critico .animate-shimmer {
+.modo-critico .animate-shimmer,
+.modo-critico .animate-sweep {
   animation: none !important;
 }
+
+.modo-critico .text-gradient-moving {
+  background: none !important;
+  -webkit-background-clip: unset !important;
+  -webkit-text-fill-color: unset !important;
+  color: #a1a1aa !important;
+  animation: none !important;
+}
+
+.modo-critico .particle-spark {
+  display: none !important;
+}
+
+.modo-critico .animate-radial-glow {
+  animation: none !important;
+  display: none !important;
+}
+
+.modo-critico .legendary-glow-border {
+  border: 1px solid #44403c !important;
+  box-shadow: none !important;
+}
+.modo-critico .legendary-glow-border::before,
+.modo-critico .legendary-glow-border::after {
+  display: none !important;
+}
+.modo-critico .legendary-glow-inner {
+  display: none !important;
+}
+.modo-critico .text-glow-emerald {
+  text-shadow: none !important;
+  color: #a1a1aa !important;
+}
+
 
 /* Disable animation if user prefers reduced motion or if in Modo Crítico */
 @media (prefers-reduced-motion: reduce) {
@@ -186,3 +423,58 @@
   mask-image: linear-gradient(to bottom, transparent, black 12%, black 88%, transparent);
   -webkit-mask-image: linear-gradient(to bottom, transparent, black 12%, black 88%, transparent);
 }
+
+/* Print-specific layout overrides for Relatório Psi PDF */
+@media print {
+  /* Hide the main React layout and all other elements */
+  #root,
+  .fixed,
+  button,
+  nav,
+  header {
+    display: none !important;
+  }
+
+  /* Make body white and print container visible */
+  body {
+    background-color: white !important;
+    background-image: none !important;
+    color: black !important;
+    font-family: 'Inter', 'Segoe UI', system-ui, sans-serif !important;
+    font-size: 11pt !important;
+    line-height: 1.5 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  .print-report-sheet {
+    display: block !important;
+    background-color: white !important;
+    color: black !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    padding: 2.5cm !important;
+    margin: 0 !important;
+    box-shadow: none !important;
+    border: none !important;
+    page-break-after: always;
+  }
+
+  /* Force table layouts and headers to be visible in black text */
+  .print-report-sheet table {
+    border-collapse: collapse !important;
+    width: 100% !important;
+  }
+  .print-report-sheet th, 
+  .print-report-sheet td {
+    border: 1px solid #d1d5db !important;
+    padding: 8px !important;
+    color: black !important;
+    text-align: left !important;
+  }
+  .print-report-sheet th {
+    background-color: #f3f4f6 !important;
+    font-weight: 800 !important;
+  }
+}
+

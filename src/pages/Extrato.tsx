@@ -1,31 +1,44 @@
 import React from 'react'
 import { useStore } from '../store/useStore'
-import { Calendar, Clock, ShoppingCart, Lightbulb } from 'lucide-react'
+import { ShoppingCart, Lightbulb, TrendingDown } from 'lucide-react'
 import { Card } from '../components/ui/Card'
-import { StatsChart } from '../components/extrato/StatsChart'
-import { RealityCheck } from '../components/extrato/RealityCheck'
 import { TimelineEntry } from '../components/extrato/TimelineEntry'
-import { casinoAudio } from '../utils/audioEngine'
 
 export const Extrato: React.FC = () => {
   const { 
     simulatedMoneyLost, 
-    realMoneySaved, 
-    emotionalDiary, 
-    historicalStats 
+    emotionalDiary 
   } = useStore()
 
-  const handleStatClick = () => {
-    casinoAudio.playTick()
+  // Calculate real-world items equivalents that could have been bought
+  const getLostEquivalents = (value: number) => {
+    if (value <= 0) return []
+    const items = [
+      { text: 'Cartelas de Ovos (30un)', cost: 20, icon: '🥚' },
+      { text: 'Litros de Leite Integral', cost: 7, icon: '🥛' },
+      { text: 'Pizzas Grandes de Sexta-feira', cost: 80, icon: '🍕' },
+      { text: 'Contas de Luz Mensais', cost: 180, icon: '⚡' },
+      { text: 'Meses de Compras Básicas de Supermercado', cost: 500, icon: '🛒' },
+      { text: 'Smartphones Intermediários', cost: 1300, icon: '📱' }
+    ]
+
+    return items
+      .map(item => {
+        const qty = Math.floor(value / item.cost)
+        return { ...item, qty }
+      })
+      .filter(item => item.qty > 0)
   }
 
+  const lostEquivalents = getLostEquivalents(simulatedMoneyLost)
+
   return (
-    <div className="space-y-6 text-center">
-      {/* Red Session Badge */}
+    <div className="space-y-6 text-center select-none pb-8 animate-fade-in">
+      {/* Red Session Header Badge */}
       <div className="relative py-4 px-2 flex flex-col items-center justify-center space-y-4">
-        <div className="inline-flex items-center gap-2 bg-black/90 border border-neon-red/20 rounded-full px-4 py-1.5 text-[9px] text-white font-black tracking-widest uppercase select-none">
+        <div className="inline-flex items-center gap-2 bg-black/90 border border-neon-red/20 rounded-full px-4 py-1.5 text-[9px] text-white font-black tracking-widest uppercase">
           <span className="w-2 h-2 rounded-full bg-neon-red animate-pulse shadow-[0_0_8px_rgba(255,51,68,0.8)]" />
-          SESSÃO TERAPÊUTICA
+          ESTRATO DE COMPULSÃO
         </div>
 
         {/* Screen Title */}
@@ -34,81 +47,84 @@ export const Extrato: React.FC = () => {
             EXTRATO DE <span className="text-neon-red text-glow-red">REALIDADE</span>
           </h1>
           <p className="text-[10px] text-zinc-400 max-w-[85%] mx-auto font-medium leading-relaxed">
-            Cada perda virtual é uma vitória na vida real.
+            Veja a conversão tangível do saldo virtual perdido nos simuladores em bens de consumo reais.
           </p>
         </div>
       </div>
 
-      {/* Core Side-by-side Stats Card */}
-      <Card 
-        onClick={handleStatClick}
-        className="p-5 border-neon-red/10 bg-[#12161a] cursor-pointer hover:border-neon-red/20 transition-all"
-      >
-        <div className="grid grid-cols-2 divide-x divide-cyber-border">
-          {/* Lost Simulated */}
-          <div className="flex flex-col items-center justify-center p-2 text-center space-y-2">
-            <Calendar className="text-neon-red stroke-[2.2]" size={20} />
-            <div className="space-y-0.5">
-              <span className="text-[9px] text-zinc-500 font-black uppercase tracking-widest block">
-                PERDIDO HOJE
-              </span>
-              <span className="text-sm font-black text-white tabular-nums tracking-tight">
-                <span className="text-neon-red mr-0.5">- R$</span>
-                {simulatedMoneyLost.toFixed(2).replace('.', ',')}
-              </span>
-            </div>
-          </div>
-
-          {/* Saved Real */}
-          <div className="flex flex-col items-center justify-center p-2 text-center space-y-2">
-            <Clock className="text-neon-red stroke-[2.2]" size={20} />
-            <div className="space-y-0.5">
-              <span className="text-[9px] text-zinc-500 font-black uppercase tracking-widest block">
-                TOTAL SALVO
-              </span>
-              <span className="text-sm font-black text-white tabular-nums tracking-tight">
-                <span className="text-neon-red mr-0.5">R$</span>
-                {realMoneySaved.toFixed(2).replace('.', ',')}
-              </span>
-            </div>
+      {/* Main Loss Summary Card */}
+      <Card className="p-5 border-neon-red/15 bg-[#12161a]">
+        <div className="flex flex-col items-center justify-center text-center space-y-2.5">
+          <TrendingDown className="text-neon-red glow-red shrink-0" size={32} />
+          <div className="space-y-0.5">
+            <span className="text-[10px] text-zinc-500 font-black uppercase tracking-widest block">
+              Prejuízo Acumulado nos Simuladores
+            </span>
+            <span className="text-3xl font-black text-white tracking-tight tabular-nums">
+              <span className="text-neon-red font-black mr-1">- R$</span>
+              {simulatedMoneyLost.toFixed(2).replace('.', ',')}
+            </span>
           </div>
         </div>
       </Card>
 
-      {/* Shopping Cart Section */}
+      {/* Reality equivalents "O que foi tirado de você" */}
       <div className="space-y-3 text-left">
-        <h3 className="text-xs font-black text-white uppercase tracking-wider flex items-center gap-2 select-none">
+        <h3 className="text-xs font-black text-white uppercase tracking-wider flex items-center gap-2">
           <ShoppingCart size={18} className="text-zinc-400" />
           O que foi tirado de você:
         </h3>
 
         {simulatedMoneyLost === 0 ? (
           <div className="border border-dashed border-zinc-800 bg-zinc-950/60 rounded-xl p-8 text-center text-[10px] text-zinc-500 font-black tracking-widest uppercase">
-            Seu histórico de simulações aparecerá aqui.
+            Jogue nos simuladores para ver a conversão de perdas em itens do mundo real.
+          </div>
+        ) : lostEquivalents.length === 0 ? (
+          <div className="border border-dashed border-zinc-800 bg-zinc-950/60 rounded-xl p-6 text-center text-[10px] text-zinc-400 font-extrabold uppercase">
+            O prejuízo ainda é pequeno para comprar os itens básicos do termômetro. Continue registrando.
           </div>
         ) : (
-          <div className="space-y-3.5">
-            {/* Reality check values */}
-            <RealityCheck moneySaved={realMoneySaved} />
-            
-            {/* Render the weekly chart details */}
-            <StatsChart stats={historicalStats} />
+          <div className="grid grid-cols-1 gap-2.5">
+            {lostEquivalents.map((item, idx) => (
+              <div key={idx} className="flex items-center justify-between p-3.5 bg-[#12161a] border border-zinc-800/80 rounded-xl shadow-md">
+                <div className="flex items-center gap-3">
+                  <span className="text-2xl">{item.icon}</span>
+                  <div className="space-y-0.5">
+                    <span className="text-xs text-white font-extrabold block">
+                      {item.qty}x {item.text}
+                    </span>
+                    <span className="text-[9px] text-zinc-500 block uppercase font-bold">
+                      Custo unitário: R$ {item.cost},00
+                    </span>
+                  </div>
+                </div>
+                <span className="text-xs font-black text-neon-red tabular-nums">
+                  R$ {(item.qty * item.cost).toFixed(2).replace('.', ',')}
+                </span>
+              </div>
+            ))}
           </div>
         )}
       </div>
 
-      {/* Timeline entries */}
+      {/* Timeline Clinica / Histórico */}
       <div className="space-y-3 text-left">
-        <h3 className="text-xs font-black text-zinc-400 uppercase tracking-wider flex items-center gap-1.5 select-none">
+        <h3 className="text-xs font-black text-zinc-400 uppercase tracking-wider flex items-center gap-1.5">
           <Lightbulb size={14} className="text-neon-green" />
-          REGISTROS DE MONITORAMENTO
+          HISTÓRICO DE AVALIAÇÃO EMOCIONAL
         </h3>
 
-        <div className="relative border-l border-zinc-800 pl-4 space-y-4 ml-1 pb-2">
-          {emotionalDiary.map((log) => (
-            <TimelineEntry key={log.id} log={log} />
-          ))}
-        </div>
+        {emotionalDiary.length === 0 ? (
+          <div className="border border-dashed border-zinc-800 bg-zinc-950/60 rounded-xl p-6 text-center text-[10px] text-zinc-500 font-black tracking-widest uppercase">
+            Nenhum mapeamento ou gatilho emocional registrado ainda.
+          </div>
+        ) : (
+          <div className="relative border-l border-zinc-800 pl-4 space-y-4 ml-1 pb-2">
+            {emotionalDiary.map((log) => (
+              <TimelineEntry key={log.id} log={log} />
+            ))}
+          </div>
+        )}
       </div>
     </div>
   )

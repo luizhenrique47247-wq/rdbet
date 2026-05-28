@@ -4,9 +4,10 @@ import { motion } from 'framer-motion'
 interface LossShakeProps {
   isLoss: boolean
   children: React.ReactNode
+  className?: string
 }
 
-export const LossShake: React.FC<LossShakeProps> = ({ isLoss, children }) => {
+export const LossShake: React.FC<LossShakeProps> = ({ isLoss, children, className }) => {
   return (
     <motion.div
       animate={
@@ -18,7 +19,7 @@ export const LossShake: React.FC<LossShakeProps> = ({ isLoss, children }) => {
           : {}
       }
       transition={{ duration: 0.35, ease: 'easeInOut' }}
-      className="w-full"
+      className={className || "w-full"}
     >
       {children}
     </motion.div>

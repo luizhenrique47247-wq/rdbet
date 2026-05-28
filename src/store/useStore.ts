@@ -1,4 +1,5 @@
 import { create } from 'zustand'
+import { persist } from 'zustand/middleware'
 import type { EmotionalLog, Mission, SimulatedStat } from '../types/store'
 
 interface AppState {
@@ -28,8 +29,42 @@ interface AppState {
   registrationDate: string | null
   unclaimedDays: number // daily reward accumulation (max 3 days)
   claimedToday: boolean
+
+  // Clinical & Refinements additions
+  avatarId: string // pre-defined avatar (1 to 4)
+  betCounter: number // tracks bets to trigger mental mapping (Mapeamento do Momento)
+  isMentalMappingOpen: boolean
+  activityHistory: Array<{
+    id: string
+    type: 'cadastro' | 'gameplay' | 'mapeamento' | 'checkin'
+    description: string
+    timestamp: string
+    details?: any
+  }>
+  
+  // Mapping steps state
+  mappingAntesCompleted: boolean
+  mappingDuranteCompleted: boolean
+  mappingDepoisCompleted: boolean
+  mappingAntesText: string
+  mappingDuranteText: string
+  mappingDepoisText: string
+  hasCompletedInitialMapping: boolean
+  mappingStage: 'antes' | 'durante' | 'depois' | 'inicial' | null
+  lastMappingDate: string | null
+  dailyMappingCompletedDate: string | null
+
+  // Content by credits state
+  contentStatus: 'unlocked' | 'cooldown' | 'ready' | 'claimed'
+  contentTimer: number
+  contentDate: string | null
+  activeGame: 'slots' | 'double' | 'mines' | 'roleta' | 'dice' | 'mental' | null
+  setActiveGame: (game: 'slots' | 'double' | 'mines' | 'roleta' | 'dice' | 'mental' | null) => void
   
   // Actions
+  startContentCooldown: (durationSeconds: number) => void
+  tickContentCooldowns: () => void
+  claimContentReward: () => void
   setTab: (tab: 'inicio' | 'missoes' | 'jogar' | 'extrato' | 'conta') => void
   addBalance: (amount: number) => void
   spendBalance: (amount: number) => boolean
@@ -44,14 +79,27 @@ interface AppState {
   tickCooldown: () => void
   resetStats: () => void
 
+  // Clinical & Refinements actions
+  setAvatarId: (id: string) => void
+  setUserName: (name: string) => void
+  setMentalMappingOpen: (open: boolean) => void
+  incrementBetsCount: () => void
+  addActivityLog: (type: 'cadastro' | 'gameplay' | 'mapeamento' | 'checkin', description: string, details?: any) => void
+  completeStage: (stage: 'antes' | 'durante' | 'depois', mood: 'ansioso' | 'tedio' | 'estressado' | 'impulso' | 'calmo' | 'triste', intensity: number, reason: string) => void
+  claimMappingReward: () => void
+  setMappingStage: (stage: 'antes' | 'durante' | 'depois' | 'inicial' | null) => void
+  checkAndResetDailyMapping: () => void
+
   // Onboarding & On-day Actions
   registerUser: (name: string, plan: '30' | '60' | 'unlimited') => void
   advanceDay: () => void
   claimDailyReward: () => number // returns amount claimed
 }
 
-export const useStore = create<AppState>((set, get) => ({
-  currentTab: 'inicio',
+export const useStore = create<AppState>()(
+  persist(
+    (set, get) => ({
+      currentTab: 'inicio',
   balance: 0, // Starts at 0 before registration
   xp: 0,      // Starts at 0 before registration
   level: 1,
@@ -75,34 +123,28 @@ export const useStore = create<AppState>((set, get) => ({
   unclaimedDays: 0,
   claimedToday: false,
 
+  // Clinical & Refinements additions default values
+  avatarId: '1',
+  betCounter: 0,
+  isMentalMappingOpen: false,
+  activityHistory: [],
+  mappingAntesCompleted: false,
+  mappingDuranteCompleted: false,
+  mappingDepoisCompleted: false,
+  mappingAntesText: '',
+  mappingDuranteText: '',
+  mappingDepoisText: '',
+  hasCompletedInitialMapping: false,
+  mappingStage: null,
+  lastMappingDate: null,
+  dailyMappingCompletedDate: null,
+  contentStatus: 'unlocked',
+  contentTimer: 0,
+  contentDate: null,
+  activeGame: null,
+
   
-  // Mock emotional logs to show history
-  emotionalDiary: [
-    {
-      id: 'log-1',
-      timestamp: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
-      mood: 'ancioso',
-      intensity: 4,
-      trigger: 'Propaganda de site de aposta no jogo de futebol',
-      notes: 'Senti um forte impulso de abrir o app e apostar no segundo tempo para recuperar o dinheiro do fim de semana. Abri o RDBET e fiz o simulador de Double, vi que perderia tudo de novo. O impulso passou após 15 minutos.'
-    },
-    {
-      id: 'log-2',
-      timestamp: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
-      mood: 'tedio',
-      intensity: 3,
-      trigger: 'Sozinho em casa à noite',
-      notes: 'Tédio absoluto. O cérebro automaticamente procurou o cassino online para buscar emoção rápido. Completei a missão de respiração e comecei a jogar um videogame.'
-    },
-    {
-      id: 'log-3',
-      timestamp: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
-      mood: 'calmo',
-      intensity: 1,
-      trigger: 'Nenhum',
-      notes: 'Dia tranquilo. Consegui focar no trabalho e não pensei em apostas. Completei meu check-in diário.'
-    }
-  ],
+  emotionalDiary: [],
 
   // Mock missions
   missions: [
@@ -126,8 +168,8 @@ export const useStore = create<AppState>((set, get) => ({
     },
     {
       id: 'm-3',
-      title: 'Desmascarando o Crash',
-      description: 'Jogue o "Crash da Ansiedade" no simulador e assista à análise do padrão de perda.',
+      title: 'Desmascarando os Slots',
+      description: 'Jogue o "Slots RD" no simulador e analise como a volatilidade impacta o saldo.',
       xpReward: 25,
       balanceReward: 150,
       completed: false,
@@ -173,7 +215,8 @@ export const useStore = create<AppState>((set, get) => ({
     { date: 'Dom', simulatedSpent: 0, actualSaved: 450, anxietyPeak: 1 }
   ],
 
-  setTab: (tab) => set({ currentTab: tab }),
+  setActiveGame: (game) => set({ activeGame: game }),
+  setTab: (tab) => set({ currentTab: tab, activeGame: null }),
 
   addBalance: (amount) => set((state) => ({ balance: state.balance + amount })),
 
@@ -206,31 +249,18 @@ export const useStore = create<AppState>((set, get) => ({
       timestamp: new Date().toISOString()
     }
     
-    let xpToGain = 0
-    let balanceToGain = 0
-    
-    const updatedMissions = state.missions.map(m => {
-      if (m.id === 'm-1' && !m.completed) {
-        xpToGain = m.xpReward
-        balanceToGain = m.balanceReward
-        return { ...m, completed: true }
-      }
-      return m
-    })
-
-    let nextXp = state.xp + xpToGain
-    let nextLevel = state.level
-    if (nextXp >= 100) {
-      nextXp -= 100
-      nextLevel += 1
+    const activityLog = {
+      id: `act-${Date.now()}-map`,
+      type: 'mapeamento' as const,
+      description: `Mapeamento Mental: Sentimento: ${log.mood.toUpperCase()} (Intensidade ${log.intensity}/10)`,
+      timestamp: new Date().toISOString(),
+      details: { mood: log.mood, intensity: log.intensity, trigger: log.trigger }
     }
 
     return {
       emotionalDiary: [newLog, ...state.emotionalDiary],
-      missions: updatedMissions,
-      xp: nextXp,
-      level: nextLevel,
-      balance: state.balance + balanceToGain
+      activityHistory: [activityLog, ...state.activityHistory],
+      lastMappingDate: new Date().toLocaleDateString()
     }
   }),
 
@@ -254,32 +284,19 @@ export const useStore = create<AppState>((set, get) => ({
   }),
 
   incrementSimulatedStats: (moneyLost, timeLostSeconds) => set((state) => {
-    let xpToGain = 0
-    let balanceToGain = 0
-    const updatedMissions = state.missions.map(m => {
-      if (m.id === 'm-3' && !m.completed) {
-        xpToGain = m.xpReward
-        balanceToGain = m.balanceReward
-        return { ...m, completed: true }
-      }
-      return m
-    })
-
-    let nextXp = state.xp + xpToGain
-    let nextLevel = state.level
-    if (nextXp >= 100) {
-      nextXp -= 100
-      nextLevel += 1
+    const gameLog = {
+      id: `act-${Date.now()}-game`,
+      type: 'gameplay' as const,
+      description: `Simulação de Aposta: Perda virtual de R$ ${moneyLost.toFixed(2)}`,
+      timestamp: new Date().toISOString(),
+      details: { moneyLost, timeLostSeconds }
     }
 
     return {
       simulatedBetsCount: state.simulatedBetsCount + 1,
       simulatedMoneyLost: state.simulatedMoneyLost + moneyLost,
       simulatedTimeLost: state.simulatedTimeLost + timeLostSeconds,
-      missions: updatedMissions,
-      xp: nextXp,
-      level: nextLevel,
-      balance: state.balance + balanceToGain
+      activityHistory: [gameLog, ...state.activityHistory]
     }
   }),
 
@@ -343,48 +360,274 @@ export const useStore = create<AppState>((set, get) => ({
     simulatedDay: 1,
     registrationDate: null,
     unclaimedDays: 0,
-    claimedToday: false
+    claimedToday: false,
+    avatarId: '1',
+    betCounter: 0,
+    isMentalMappingOpen: false,
+    activityHistory: [],
+    mappingAntesCompleted: false,
+    mappingDuranteCompleted: false,
+    mappingDepoisCompleted: false,
+    mappingAntesText: '',
+    mappingDuranteText: '',
+    mappingDepoisText: '',
+    hasCompletedInitialMapping: false,
+    mappingStage: null,
+    lastMappingDate: null,
+    dailyMappingCompletedDate: null,
+    contentStatus: 'unlocked',
+    contentTimer: 0,
+    contentDate: null,
+    activeGame: null
   })),
 
-  registerUser: (name, plan) => set({
-    registered: true,
-    userName: name,
-    selectedPlan: plan,
-    registrationDate: new Date().toISOString(),
-    balance: 50,
-    xp: 50,
-    level: 3,
-    streak: 0,
-    simulatedDay: 1,
-    claimedToday: true,
-    unclaimedDays: 0,
-    realMoneySaved: 0
-  }),
+  registerUser: (name, plan) => {
+    const registrationDate = new Date().toISOString()
+    const initLog = {
+      id: `act-${Date.now()}-reg`,
+      type: 'cadastro' as const,
+      description: `Cadastro de usuário "${name}" realizado no plano ${plan === 'unlimited' ? 'Ilimitado' : plan + ' Dias'}`,
+      timestamp: registrationDate
+    }
+    set({
+      registered: true,
+      userName: name,
+      selectedPlan: plan,
+      registrationDate,
+      balance: 50,
+      xp: 0,
+      level: 1,
+      streak: 0,
+      simulatedDay: 1,
+      claimedToday: true,
+      unclaimedDays: 0,
+      realMoneySaved: 0,
+      avatarId: '1',
+      betCounter: 0,
+      isMentalMappingOpen: false,
+      activityHistory: [initLog],
+      mappingAntesCompleted: false,
+      mappingDuranteCompleted: false,
+      mappingDepoisCompleted: false,
+      mappingAntesText: '',
+      mappingDuranteText: '',
+      mappingDepoisText: '',
+      hasCompletedInitialMapping: false,
+      mappingStage: null,
+      lastMappingDate: null,
+      dailyMappingCompletedDate: null,
+      contentStatus: 'unlocked',
+      contentTimer: 0,
+      contentDate: null,
+      activeGame: null
+    })
+  },
 
   advanceDay: () => set((state) => {
-    const wasClaimed = state.claimedToday
+    const nextDay = state.simulatedDay + 1
+    const newBalance = state.balance + 50 // Automatic daily reward
+    const dayLog = {
+      id: `act-${Date.now()}-day`,
+      type: 'checkin' as const,
+      description: `Avanço de Dia para Dia ${nextDay}: Banca diária de R$ 50,00 adicionada automaticamente.`,
+      timestamp: new Date().toISOString()
+    }
     return {
-      simulatedDay: state.simulatedDay + 1,
-      unclaimedDays: wasClaimed ? state.unclaimedDays : Math.min(3, state.unclaimedDays + 1),
-      claimedToday: false,
+      simulatedDay: nextDay,
+      balance: newBalance,
+      claimedToday: true,
+      unclaimedDays: 0,
       streak: state.streak + 1,
-      realMoneySaved: state.realMoneySaved + 50
+      realMoneySaved: state.realMoneySaved + 50,
+      mappingAntesCompleted: false,
+      mappingDuranteCompleted: false,
+      mappingDepoisCompleted: false,
+      mappingAntesText: '',
+      mappingDuranteText: '',
+      mappingDepoisText: '',
+      dailyMappingCompletedDate: null,
+      contentStatus: 'unlocked',
+      contentTimer: 0,
+      contentDate: null,
+      activityHistory: [dayLog, ...state.activityHistory]
     }
   }),
 
   claimDailyReward: () => {
-    const state = get()
-    if (state.claimedToday) return 0
+    return 0 // reward is automatic now
+  },
 
-    const daysToClaim = Math.min(3, state.unclaimedDays + 1)
-    const payout = daysToClaim * 50
+  setAvatarId: (id) => set({ avatarId: id }),
 
-    set((s) => ({
-      balance: s.balance + payout,
-      claimedToday: true,
-      unclaimedDays: 0
-    }))
+  setUserName: (name) => set({ userName: name }),
 
-    return payout
+  setMentalMappingOpen: (open) => set({ isMentalMappingOpen: open }),
+
+  incrementBetsCount: () => set((state) => {
+    const today = new Date().toLocaleDateString()
+    if (state.lastMappingDate === today) {
+      return {} // Already mapped today (voluntarily or automatically), no popup!
+    }
+    const nextCount = state.betCounter + 1
+    if (nextCount >= 3) {
+      return {
+        betCounter: 0,
+        isMentalMappingOpen: true,
+        lastMappingDate: today
+      }
+    }
+    return {
+      betCounter: nextCount
+    }
+  }),
+
+  addActivityLog: (type, description, details) => set((state) => {
+    const newLog = {
+      id: `act-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      type,
+      description,
+      timestamp: new Date().toISOString(),
+      details
+    }
+    return {
+      activityHistory: [newLog, ...state.activityHistory]
+    }
+  }),
+
+  completeStage: (stage, mood, intensity, reason) => set((state) => {
+    const newLog = {
+      id: `log-${Date.now()}-${stage}`,
+      timestamp: new Date().toISOString(),
+      mood,
+      intensity,
+      trigger: reason,
+      notes: `Mapeamento voluntário etapa: ${stage.toUpperCase()}`
+    }
+
+    const activityLog = {
+      id: `act-${Date.now()}-${stage}`,
+      type: 'mapeamento' as const,
+      description: `Mapeamento Mental (${stage.toUpperCase()}): Sentimento: ${mood.toUpperCase()} (Intensidade ${intensity}/10). Motivo: "${reason}"`,
+      timestamp: new Date().toISOString()
+    }
+
+    const updates: Partial<AppState> = {
+      emotionalDiary: [newLog, ...state.emotionalDiary],
+      activityHistory: [activityLog, ...state.activityHistory],
+      lastMappingDate: new Date().toLocaleDateString()
+    }
+
+    if (stage === 'antes') {
+      updates.mappingAntesCompleted = true
+      updates.mappingAntesText = reason
+    } else if (stage === 'durante') {
+      updates.mappingDuranteCompleted = true
+      updates.mappingDuranteText = reason
+    } else if (stage === 'depois') {
+      updates.mappingDepoisCompleted = true
+      updates.mappingDepoisText = reason
+    }
+
+    return updates
+  }),
+
+  claimMappingReward: () => set((state) => {
+    if (!state.mappingAntesCompleted || !state.mappingDuranteCompleted || !state.mappingDepoisCompleted) {
+      return {}
+    }
+    const bonus = 15
+    const today = new Date().toLocaleDateString()
+    const activityLog = {
+      id: `act-${Date.now()}-bonus`,
+      type: 'checkin' as const,
+      description: `Recompensa de R$ 15,00 resgatada por completar as 3 etapas do Mapeamento do Momento`,
+      timestamp: new Date().toISOString()
+    }
+    return {
+      balance: state.balance + bonus,
+      dailyMappingCompletedDate: today,
+      activityHistory: [activityLog, ...state.activityHistory]
+    }
+  }),
+
+  setMappingStage: (stage) => set({ mappingStage: stage }),
+
+  startContentCooldown: (durationSeconds) => set(() => {
+    const today = new Date().toLocaleDateString()
+    return {
+      contentStatus: 'cooldown',
+      contentTimer: durationSeconds,
+      contentDate: today
+    }
+  }),
+
+  tickContentCooldowns: () => set((state) => {
+    if (state.contentStatus === 'cooldown') {
+      const nextVal = state.contentTimer - 1
+      if (nextVal <= 0) {
+        return {
+          contentStatus: 'ready',
+          contentTimer: 0
+        }
+      } else {
+        return {
+          contentTimer: nextVal
+        }
+      }
+    }
+    return {}
+  }),
+
+  claimContentReward: () => set((state) => {
+    const bonus = 25
+    const today = new Date().toLocaleDateString()
+    const activityLog = {
+      id: `act-${Date.now()}-content-daily`,
+      type: 'checkin' as const,
+      description: `Recompensa de R$ 25,00 resgatada por concluir o Conteúdo do Dia`,
+      timestamp: new Date().toISOString()
+    }
+    return {
+      balance: state.balance + bonus,
+      contentStatus: 'claimed',
+      contentDate: today,
+      activityHistory: [activityLog, ...state.activityHistory]
+    }
+  }),
+
+  checkAndResetDailyMapping: () => {
+    const today = new Date().toLocaleDateString()
+    const { dailyMappingCompletedDate, contentDate } = get()
+    const updates: Partial<AppState> = {}
+    
+    if (dailyMappingCompletedDate && dailyMappingCompletedDate !== today) {
+      updates.mappingAntesCompleted = false
+      updates.mappingDuranteCompleted = false
+      updates.mappingDepoisCompleted = false
+      updates.mappingAntesText = ''
+      updates.mappingDuranteText = ''
+      updates.mappingDepoisText = ''
+      updates.dailyMappingCompletedDate = null
+    }
+
+    if (contentDate && contentDate !== today) {
+      updates.contentStatus = 'unlocked'
+      updates.contentTimer = 0
+      updates.contentDate = null
+    }
+
+    if (Object.keys(updates).length > 0) {
+      set(updates)
+    }
   }
-}))
+    }),
+    {
+      name: 'rdbet-clinical-storage'
+    }
+  )
+)
+
+if (typeof window !== 'undefined') {
+  (window as any).store = useStore
+}
+

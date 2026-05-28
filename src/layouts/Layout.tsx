@@ -5,6 +5,7 @@ import { BottomNav } from '../components/BottomNav'
 import { cn } from '../utils/cn'
 import { casinoAudio } from '../utils/audioEngine'
 import { Lock } from 'lucide-react'
+import { MapeamentoMomentoModal } from '../components/ui/MapeamentoMomentoModal'
 
 interface LayoutProps {
   children: React.ReactNode
@@ -19,19 +20,27 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
     selectedPlan, 
     simulatedDay,
     currentTab,
-    setTab
+    setTab,
+    checkAndResetDailyMapping,
+    tickContentCooldowns,
+    activeGame
   } = useStore()
 
-  // Handle active cooldown countdown ticking
+  // Reset daily mapping on app load/calendar change
   useEffect(() => {
-    let timer: any
-    if (cooldownActive) {
-      timer = setInterval(() => {
+    checkAndResetDailyMapping()
+  }, [checkAndResetDailyMapping])
+
+  // Unified 1-second interval ticker for active cooldowns and content rewards
+  useEffect(() => {
+    const timer = setInterval(() => {
+      if (cooldownActive) {
         tickCooldown()
-      }, 1000)
-    }
+      }
+      tickContentCooldowns()
+    }, 1000)
     return () => clearInterval(timer)
-  }, [cooldownActive, tickCooldown])
+  }, [cooldownActive, tickCooldown, tickContentCooldowns])
 
   // Calculate saturation and volume factor for the desmame process
   let saturation = 1
@@ -50,6 +59,23 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
 
   const showLockScreen = !registered && currentTab !== 'inicio'
 
+  let backgroundStyle = "linear-gradient(to bottom, rgba(0, 255, 60, 0.15) 0%, rgba(0, 255, 60, 0.02) 45%, rgba(0, 255, 60, 0.02) 55%, rgba(0, 255, 60, 0.10) 100%), #080a0c"
+  if (modoCritico) {
+    backgroundStyle = "#1c1917"
+  } else if (activeGame === 'slots') {
+    backgroundStyle = "linear-gradient(to bottom, rgba(168, 85, 247, 0.15) 0%, rgba(168, 85, 247, 0.02) 45%, rgba(168, 85, 247, 0.02) 55%, rgba(168, 85, 247, 0.10) 100%), #080a0c"
+  } else if (activeGame === 'double') {
+    backgroundStyle = "linear-gradient(to bottom, rgba(239, 68, 68, 0.12) 0%, rgba(239, 68, 68, 0.02) 45%, rgba(239, 68, 68, 0.02) 55%, rgba(239, 68, 68, 0.08) 100%), #080a0c"
+  } else if (activeGame === 'roleta') {
+    backgroundStyle = "linear-gradient(to bottom, rgba(59, 130, 246, 0.12) 0%, rgba(59, 130, 246, 0.02) 45%, rgba(59, 130, 246, 0.02) 55%, rgba(59, 130, 246, 0.08) 100%), #080a0c"
+  } else if (activeGame === 'mines') {
+    backgroundStyle = "linear-gradient(to bottom, rgba(250, 204, 21, 0.12) 0%, rgba(250, 204, 21, 0.02) 45%, rgba(250, 204, 21, 0.02) 55%, rgba(250, 204, 21, 0.08) 100%), #080a0c"
+  } else if (activeGame === 'dice') {
+    backgroundStyle = "linear-gradient(to bottom, rgba(236, 72, 153, 0.12) 0%, rgba(236, 72, 153, 0.02) 45%, rgba(236, 72, 153, 0.02) 55%, rgba(236, 72, 153, 0.08) 100%), #080a0c"
+  } else if (activeGame === 'mental') {
+    backgroundStyle = "linear-gradient(to bottom, rgba(16, 185, 129, 0.15) 0%, rgba(16, 185, 129, 0.02) 45%, rgba(16, 185, 129, 0.02) 55%, rgba(16, 185, 129, 0.10) 100%), #080a0c"
+  }
+
   return (
     <div 
       className={cn(
@@ -58,11 +84,16 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
       )}
       style={{ filter: `saturate(${saturation})` }}
     >
-      <div className="w-full max-w-md md:max-w-xl h-full bg-zinc-950 border-x border-cyber-border flex flex-col relative shadow-2xl overflow-hidden">
+      <div 
+        className="w-full max-w-md md:max-w-xl h-full border-x border-cyber-border flex flex-col relative shadow-2xl overflow-hidden"
+        style={{
+          background: backgroundStyle
+        }}
+      >
         <Header />
         
         {/* Main Content Area */}
-        <main className="flex-1 px-4 py-6 overflow-y-auto overflow-x-hidden">
+        <main className={cn("flex-1 px-4 overflow-x-hidden", activeGame ? "pt-2 pb-3 overflow-y-hidden" : "py-6 overflow-y-auto")}>
           {showLockScreen ? (
             <div className="flex flex-col items-center justify-center text-center space-y-6 py-16 px-4 animate-fade-in select-none">
               <div className="w-20 h-20 bg-zinc-900 border border-cyber-border rounded-full flex items-center justify-center text-neon-green glow-green animate-pulse">
@@ -93,6 +124,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
         </main>
 
         <BottomNav />
+        <MapeamentoMomentoModal />
       </div>
     </div>
   )

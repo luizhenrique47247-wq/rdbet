@@ -21,7 +21,7 @@ export const TimelineEntry: React.FC<TimelineEntryProps> = ({ log }) => {
       <span className={cn(
         "absolute -left-[21px] top-1.5 w-2.5 h-2.5 rounded-full border border-zinc-950 ring-1",
         log.mood === 'impulso' ? 'bg-red-500 ring-red-500/20' :
-        log.mood === 'ancioso' ? 'bg-yellow-500 ring-yellow-500/20' :
+        log.mood === 'ansioso' ? 'bg-yellow-500 ring-yellow-500/20' :
         log.mood === 'calmo' ? 'bg-emerald-500 ring-emerald-500/20' : 'bg-blue-500 ring-blue-500/20'
       )} />
 
@@ -32,12 +32,12 @@ export const TimelineEntry: React.FC<TimelineEntryProps> = ({ log }) => {
         <Badge
           variant={
             log.mood === 'impulso' ? 'red' :
-            log.mood === 'ancioso' ? 'yellow' :
+            log.mood === 'ansioso' ? 'yellow' :
             log.mood === 'calmo' ? 'green' : 'blue'
           }
           glow
         >
-          {log.mood} (Int: {log.intensity}/5)
+          {log.mood} (Int: {log.intensity}/10)
         </Badge>
       </div>
 
