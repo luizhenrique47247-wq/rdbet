@@ -107,6 +107,18 @@
     border-color: rgba(16, 185, 129, 0.85) !important;
   }
 }
+@keyframes borderPulse {
+  0%, 100% {
+    border-color: rgba(16, 185, 129, 0.4);
+  }
+  50% {
+    border-color: rgba(0, 255, 60, 0.95);
+  }
+}
+
+.animate-border-pulse {
+  animation: borderPulse 2s infinite ease-in-out !important;
+}
 
 .animate-pulse-emerald {
   animation: pulse-emerald 2s infinite ease-in-out !important;
@@ -151,15 +163,14 @@
   position: absolute;
   left: 50%;
   top: 50%;
-  width: 250%;
-  height: 250%;
+  width: 600px;
+  height: 600px;
   background: conic-gradient(
     from 0deg,
-    transparent 50%,
-    #06b6d4 70%,
-    #10b981 85%,
-    #00ff3c 93%,
-    transparent 100%
+    #06b6d4,
+    #10b981,
+    #00ff3c,
+    #06b6d4
   );
   animation: rotateElement 3.5s linear infinite;
   z-index: 0;
@@ -172,7 +183,7 @@
 .legendary-glow-inner {
   position: absolute;
   inset: 1.5px;
-  background: #12161a;
+  background: transparent;
   border-radius: 11px;
   z-index: 1;
 }

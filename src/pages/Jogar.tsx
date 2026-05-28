@@ -26,7 +26,7 @@ export const Jogar: React.FC = () => {
   React.useEffect(() => {
     if (activeGame !== null || isPaused) return
     const timer = setInterval(() => {
-      setActiveBannerIndex((prev) => (prev + 1) % 4)
+      setActiveBannerIndex((prev) => (prev + 1) % banners.length)
     }, 4000)
     return () => clearInterval(timer)
   }, [activeGame, isPaused])
@@ -35,12 +35,13 @@ export const Jogar: React.FC = () => {
     {
       id: 'dice',
       tag: 'NOVO',
-      tagBg: 'bg-blue-600',
+      tagBg: 'bg-[#ec4899]',
       title: 'Dice da Ilusão',
-      desc: 'Ajuste sua margem de chance e role o dado. Entenda a variância estatística.',
-      borderColor: 'border-blue-500/20',
-      borderLeftColor: 'border-l-blue-500',
-      shadowColor: 'shadow-[0_0_15px_rgba(59,130,246,0.06)]',
+      desc: 'Ajuste sua margem de chance e role o dado. Entenda a variância estatística e a ilusão de quase-vitória.',
+      borderColor: 'border-[#ec4899]/20',
+      borderLeftColor: 'border-l-[#ec4899]',
+      shadowColor: 'shadow-[0_0_15px_rgba(236,72,153,0.1)]',
+      bgGradient: 'bg-gradient-to-r from-[#12161a] via-[#12161a] to-[#25101a]/40',
       icon: '🎲',
       btnText: 'JOGAR',
       btnBg: 'bg-white text-black hover:bg-zinc-200 hover:scale-[1.02]',
@@ -51,10 +52,11 @@ export const Jogar: React.FC = () => {
       tag: 'HOT',
       tagBg: 'bg-[#a855f7]',
       title: 'Slots RD',
-      desc: 'Gire para combinar. Cuidado com o ciclo de dopamina.',
-      borderColor: 'border-purple-500/20',
-      borderLeftColor: 'border-l-purple-500',
-      shadowColor: 'shadow-[0_0_15px_rgba(168,85,247,0.06)]',
+      desc: 'Gire para combinar os rolos. Cuidado com o ciclo de dopamina rápida e o efeito quase-vitória.',
+      borderColor: 'border-[#a855f7]/20',
+      borderLeftColor: 'border-l-[#a855f7]',
+      shadowColor: 'shadow-[0_0_15px_rgba(168,85,247,0.1)]',
+      bgGradient: 'bg-gradient-to-r from-[#12161a] via-[#12161a] to-[#1e102b]/40',
       icon: '🍒',
       btnText: 'JOGAR',
       btnBg: 'bg-white text-black hover:bg-zinc-200 hover:scale-[1.02]',
@@ -65,27 +67,59 @@ export const Jogar: React.FC = () => {
       tag: 'CLÁSSICO',
       tagBg: 'bg-[#ef4444]',
       title: 'Double RD',
-      desc: 'Vermelho, Preto e Branco. A ilusão de padrões no azar.',
-      borderColor: 'border-red-500/20',
-      borderLeftColor: 'border-l-red-500',
-      shadowColor: 'shadow-[0_0_15px_rgba(239,68,68,0.06)]',
-      icon: '🔴',
+      desc: 'Vermelho, Preto e Branco. A falsa ilusão de controle e padrões matemáticos no azar.',
+      borderColor: 'border-[#ef4444]/20',
+      borderLeftColor: 'border-l-[#ef4444]',
+      shadowColor: 'shadow-[0_0_15px_rgba(239,68,68,0.1)]',
+      bgGradient: 'bg-gradient-to-r from-[#12161a] via-[#12161a] to-[#2b1010]/40',
+      icon: '🎯',
       btnText: 'JOGAR',
       btnBg: 'bg-white text-black hover:bg-zinc-200 hover:scale-[1.02]',
       gameType: 'double'
     },
     {
+      id: 'mines',
+      tag: 'ESTRATÉGICO',
+      tagBg: 'bg-[#facc15] text-black font-extrabold',
+      title: 'Mines RD',
+      desc: 'Evite as bombas ocultas para multiplicar. Identifique o perigo de persistir sob a compulsão.',
+      borderColor: 'border-[#facc15]/20',
+      borderLeftColor: 'border-l-[#facc15]',
+      shadowColor: 'shadow-[0_0_15px_rgba(250,204,21,0.1)]',
+      bgGradient: 'bg-gradient-to-r from-[#12161a] via-[#12161a] to-[#2b2710]/40',
+      icon: '💣',
+      btnText: 'JOGAR',
+      btnBg: 'bg-white text-black hover:bg-zinc-200 hover:scale-[1.02]',
+      gameType: 'mines'
+    },
+    {
+      id: 'roleta',
+      tag: 'IMPULSIVIDADE',
+      tagBg: 'bg-[#3b82f6]',
+      title: 'Roleta RD',
+      desc: 'Gire os multiplicadores. Compreenda a ilusão de perdas disfarçadas de ganhos (LDWs).',
+      borderColor: 'border-[#3b82f6]/20',
+      borderLeftColor: 'border-l-[#3b82f6]',
+      shadowColor: 'shadow-[0_0_15px_rgba(59,130,246,0.1)]',
+      bgGradient: 'bg-gradient-to-r from-[#12161a] via-[#12161a] to-[#101b2b]/40',
+      icon: '🎡',
+      btnText: 'JOGAR',
+      btnBg: 'bg-white text-black hover:bg-zinc-200 hover:scale-[1.02]',
+      gameType: 'roleta'
+    },
+    {
       id: 'mental',
       tag: 'TERAPÊUTICO',
-      tagBg: 'bg-emerald-600 animate-pulse',
+      tagBg: 'bg-[#10b981] animate-pulse',
       title: 'Espaço Saúde Mental',
       desc: 'Exercícios de respiração, diário de gatilhos e quiz premiado de dopamina.',
-      borderColor: 'border-emerald-500/30',
-      borderLeftColor: 'border-l-emerald-500',
-      shadowColor: 'shadow-[0_0_15px_rgba(16,185,129,0.06)]',
+      borderColor: 'border-[#10b981]/30',
+      borderLeftColor: 'border-l-[#10b981]',
+      shadowColor: 'shadow-[0_0_15px_rgba(16,185,129,0.1)]',
+      bgGradient: 'bg-gradient-to-r from-[#12161a] via-[#12161a] to-[#102b1c]/40',
       icon: 'heartpulse',
       btnText: 'ABRIR ESPAÇO',
-      btnBg: 'bg-emerald-500 text-black hover:bg-emerald-400 animate-pulse shadow-[0_0_15px_rgba(16,185,129,0.4)]',
+      btnBg: 'bg-[#10b981] text-black hover:bg-emerald-400 animate-pulse shadow-[0_0_15px_rgba(16,185,129,0.4)]',
       gameType: 'mental'
     }
   ] as const
@@ -179,66 +213,133 @@ export const Jogar: React.FC = () => {
                     {(() => {
                       const banner = banners[activeBannerIndex]
                       const isMental = banner.id === 'mental'
+                      
+                      // Theme settings mapping
+                      const theme = {
+                        dice: {
+                          color: '#ec4899',
+                          bgGrad: 'bg-gradient-to-br from-[#1f0f18]/85 via-[#12161a]/95 to-[#0b0d10]',
+                          badgeBg: 'bg-[#ec4899]/10 text-[#ec4899] border-[#ec4899]/30',
+                          btnBg: 'bg-[#ec4899] text-white hover:bg-pink-400 hover:shadow-[0_0_12px_rgba(236,72,153,0.5)]',
+                          radialGlow: 'border-l-4 border-l-[#ec4899]'
+                        },
+                        slots: {
+                          color: '#a855f7',
+                          bgGrad: 'bg-gradient-to-br from-[#1b0d2b]/85 via-[#12161a]/95 to-[#0b0d10]',
+                          badgeBg: 'bg-[#a855f7]/10 text-[#c084fc] border-[#a855f7]/30',
+                          btnBg: 'bg-[#a855f7] text-white hover:bg-purple-400 hover:shadow-[0_0_12px_rgba(168,85,247,0.5)]',
+                          radialGlow: 'border-l-4 border-l-[#a855f7]'
+                        },
+                        double: {
+                          color: '#ef4444',
+                          bgGrad: 'bg-gradient-to-br from-[#2b0d0d]/85 via-[#12161a]/95 to-[#0b0d10]',
+                          badgeBg: 'bg-[#ef4444]/10 text-[#f87171] border-[#ef4444]/30',
+                          btnBg: 'bg-[#ef4444] text-white hover:bg-red-400 hover:shadow-[0_0_12px_rgba(239,68,68,0.5)]',
+                          radialGlow: 'border-l-4 border-l-[#ef4444]'
+                        },
+                        mines: {
+                          color: '#facc15',
+                          bgGrad: 'bg-gradient-to-br from-[#2b220d]/85 via-[#12161a]/95 to-[#0b0d10]',
+                          badgeBg: 'bg-[#facc15]/10 text-[#facc15] border-[#facc15]/30',
+                          btnBg: 'bg-[#facc15] text-black hover:bg-yellow-400 hover:shadow-[0_0_12px_rgba(250,204,21,0.5)]',
+                          radialGlow: 'border-l-4 border-l-[#facc15]'
+                        },
+                        roleta: {
+                          color: '#3b82f6',
+                          bgGrad: 'bg-gradient-to-br from-[#0d1c2b]/85 via-[#12161a]/95 to-[#0b0d10]',
+                          badgeBg: 'bg-[#3b82f6]/10 text-[#60a5fa] border-[#3b82f6]/30',
+                          btnBg: 'bg-[#3b82f6] text-white hover:bg-blue-400 hover:shadow-[0_0_12px_rgba(59,130,246,0.5)]',
+                          radialGlow: 'border-l-4 border-l-[#3b82f6]'
+                        },
+                        mental: {
+                          color: '#10b981',
+                          bgGrad: 'bg-gradient-to-br from-[#0a1d17] via-[#0b0f12] to-[#050809]',
+                          badgeBg: 'bg-[#10b981]/15 text-[#34d399] border-[#10b981]/40 animate-pulse',
+                          btnBg: 'bg-[#10b981] text-black hover:bg-emerald-400 hover:shadow-[0_0_15px_rgba(16,185,129,0.6)] animate-pulse',
+                          radialGlow: 'border-none'
+                        }
+                      }[banner.id as 'dice'|'slots'|'double'|'mines'|'roleta'|'mental']
+
                       return (
                         <Card 
                           className={cn(
-                            "w-full h-full p-5 bg-[#12161a] border relative overflow-hidden flex flex-col justify-between transition-all duration-300",
+                            "w-full h-full bg-[#12161a] border relative overflow-hidden transition-all duration-300 rounded-2xl",
                             isMental 
-                              ? "legendary-glow-border border-transparent" 
-                              : cn("border-l-4", banner.borderColor, banner.borderLeftColor, banner.shadowColor)
+                              ? "border-2 border-emerald-500/40 animate-border-pulse shadow-[0_0_15px_rgba(16,185,129,0.2)]" 
+                              : cn("border-cyber-border", theme.radialGlow)
                           )}
                           onClick={() => {
                             setIsPaused(true)
                           }}
                         >
-                          {/* Rotating Border Mask */}
-                          {isMental && <div className="legendary-glow-inner" />}
+                          {/* Background Grid Pattern */}
+                          <div className="absolute inset-0 bg-[radial-gradient(rgba(255,255,255,0.03)_1px,transparent_1px)] [background-size:16px_16px] pointer-events-none z-0" />
 
-                          <div className={cn("w-full h-full flex flex-col justify-between relative", isMental && "z-10")}>
-                            {/* Banner background deco / icon */}
-                            <div className="absolute top-0 right-0 p-3 text-zinc-900 opacity-20 translate-x-3 -translate-y-3 pointer-events-none select-none z-0">
-                              {banner.icon === 'heartpulse' ? (
-                                <HeartPulse size={96} className={cn("stroke-[1.5] text-emerald-500", isMental && "animate-heartbeat text-emerald-400 drop-shadow-[0_0_15px_rgba(16,185,129,0.8)]")} />
-                              ) : (
-                                <span className="text-8xl">{banner.icon}</span>
-                              )}
+                          {/* Radial Glow Highlight on the right side */}
+                          <div 
+                            className="absolute right-[-40px] top-[20%] w-[180px] h-[180px] rounded-full filter blur-[40px] opacity-15 pointer-events-none z-0" 
+                            style={{ backgroundColor: theme.color }}
+                          />
+
+                          {/* Sweep Light Sheen overlay for Saúde Mental (positioned over content at z-20) */}
+                          {isMental && (
+                            <div className="absolute inset-0 pointer-events-none overflow-hidden z-20 rounded-2xl">
+                              <div className="absolute top-0 bottom-0 w-[40%] bg-gradient-to-r from-transparent via-[#00ff3c]/35 to-transparent -skew-x-12 -left-[60%] animate-sweep" />
                             </div>
-                            
-                            {/* Sweep Light Sheen overlay for Saúde Mental */}
-                            {isMental && (
-                              <div className="absolute inset-0 pointer-events-none overflow-hidden z-0">
-                                <div className="absolute top-0 bottom-0 w-[40%] bg-gradient-to-r from-transparent via-emerald-400/25 to-transparent -skew-x-12 -left-[60%] animate-sweep" />
-                              </div>
-                            )}
+                          )}
 
-                            <div className="space-y-1.5 z-10">
-                              <span className={cn("text-white font-black text-[8px] tracking-widest px-2 py-1.5 rounded uppercase select-none inline-block", banner.tagBg)}>
+                          {/* Content Container (Split layout) */}
+                          <div className={cn(
+                            "w-full h-full flex items-center relative z-10",
+                            theme.bgGrad
+                          )}>
+                            {/* Compensating left spacer for the mental health banner to match other banners' border-l-4 offset */}
+                            {isMental && <div className="w-[3px] h-full shrink-0" />}
+
+                            {/* Left Pane: Info Content */}
+                            <div className="flex-1 p-5 flex flex-col justify-center select-none text-left min-w-0">
+                              <span className={cn(
+                                "text-[7.5px] font-black tracking-widest px-2 py-0.5 rounded border uppercase w-fit select-none",
+                                theme.badgeBg
+                              )}>
                                 {banner.tag}
                               </span>
-                              <h3 className="text-xl font-black text-white uppercase tracking-tight mt-1">
+                              <h3 className="text-lg font-black text-white uppercase tracking-wider mt-1.5 leading-none truncate">
                                 {isMental ? (
                                   <span className="text-glow-emerald font-black">{banner.title}</span>
                                 ) : (
                                   banner.title
                                 )}
                               </h3>
-                              <p className="text-[10px] text-zinc-400 max-w-[80%] leading-relaxed font-medium">
+                              <p className="text-[10px] text-zinc-400 mt-2 leading-relaxed line-clamp-2 pr-2 font-medium">
                                 {banner.desc}
                               </p>
                             </div>
-                            
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation()
-                                selectGame(banner.gameType as GameType)
-                              }}
-                              className={cn(
-                                "w-36 py-2 font-black text-[10px] tracking-wider uppercase rounded-lg flex items-center justify-center gap-1.5 cursor-pointer transition-all duration-200 shadow-lg z-10",
-                                banner.btnBg
-                              )}
-                            >
-                              {banner.btnText} <span className="text-[8px] leading-none">▶</span>
-                            </button>
+
+                            {/* Right Pane: Action Bar with Centered Button */}
+                            <div className="w-[130px] h-full flex-shrink-0 flex items-center justify-center bg-black/35 border-l border-white/5 relative overflow-hidden">
+                              {/* Glowing/watermark icon behind the button */}
+                              <div className="absolute inset-0 flex items-center justify-center opacity-15 pointer-events-none select-none z-0">
+                                {banner.icon === 'heartpulse' ? (
+                                  <HeartPulse size={64} className="stroke-[2] text-[#10b981] animate-heartbeat" />
+                                ) : (
+                                  <span className="text-5xl filter grayscale brightness-200">{banner.icon}</span>
+                                )}
+                              </div>
+
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  selectGame(banner.gameType as GameType)
+                                }}
+                                className={cn(
+                                  "w-[102px] py-2.5 rounded-xl font-black text-[9px] uppercase tracking-widest text-center flex items-center justify-center gap-1 cursor-pointer transition-all duration-300 active:scale-95 z-10 border-none",
+                                  theme.btnBg
+                                )}
+                              >
+                                {banner.btnText} <span className="text-[7.5px] leading-none">▶</span>
+                              </button>
+                            </div>
                           </div>
                         </Card>
                       )
@@ -259,7 +360,7 @@ export const Jogar: React.FC = () => {
                     className={cn(
                       "w-2 h-2 rounded-full transition-all duration-300 cursor-pointer",
                       activeBannerIndex === idx 
-                        ? (activeBannerIndex === 3 ? "bg-emerald-500 w-5 glow-emerald" : "bg-neon-green w-5 shadow-[0_0_8px_#00ff3c]") 
+                        ? (banners[idx].id === 'mental' ? "bg-emerald-500 w-5 glow-emerald" : "bg-neon-green w-5 shadow-[0_0_8px_#00ff3c]") 
                         : "bg-zinc-700 hover:bg-zinc-500"
                     )}
                     aria-label={`Banner ${idx + 1}`}
@@ -445,28 +546,23 @@ export const Jogar: React.FC = () => {
                 {(category === 'todos' || category === 'mental') && (
                   <button
                     onClick={() => selectGame('mental')}
-                    className="aspect-[3/4] rounded-xl p-3 flex flex-col justify-between items-start text-left cursor-pointer transition-all relative overflow-hidden group legendary-glow-border border-transparent"
+                    className="aspect-[3/4] bg-[#12161a] border-2 border-emerald-500/40 animate-border-pulse rounded-xl p-3 flex flex-col justify-between items-start text-left cursor-pointer transition-all relative overflow-hidden group shadow-[0_0_15px_rgba(16,185,129,0.15)] hover:border-emerald-400 hover:shadow-[0_0_20px_rgba(16,185,129,0.35)]"
                   >
-                    {/* Inner rotating mask */}
-                    <div className="legendary-glow-inner" />
+                    {/* Floating SOS Badge */}
+                    <span className="absolute top-3 right-3 bg-emerald-600 text-white font-black text-[6px] tracking-widest px-1.5 py-0.5 rounded uppercase select-none animate-pulse shadow-[0_0_10px_rgba(16,185,129,0.7)] z-10">
+                      SOS
+                    </span>
 
-                    <div className="w-full h-full flex flex-col justify-between items-start z-10 relative">
-                      {/* Floating SOS Badge */}
-                      <span className="absolute top-0 right-0 bg-emerald-600 text-white font-black text-[6px] tracking-widest px-1.5 py-0.5 rounded uppercase select-none animate-pulse shadow-[0_0_10px_rgba(16,185,129,0.7)] z-10">
-                        SOS
-                      </span>
-
-                      {/* Sweep Light Sheen overlay */}
-                      <div className="absolute inset-0 pointer-events-none overflow-hidden z-0">
-                        <div className="absolute top-0 bottom-0 w-[40%] bg-gradient-to-r from-transparent via-emerald-400/20 to-transparent -skew-x-12 -left-[60%] animate-sweep" />
-                      </div>
-
-                      <HeartPulse size={28} className="mt-1 text-emerald-400 animate-heartbeat drop-shadow-[0_0_10px_rgba(16,185,129,0.85)] z-10" />
-                      
-                      <span className="text-[8.5px] font-black tracking-widest text-glow-emerald uppercase leading-none mt-auto block z-10">
-                        SAÚDE MENTAL
-                      </span>
+                    {/* Sweep Light Sheen overlay (positioned over content at z-20) */}
+                    <div className="absolute inset-0 pointer-events-none overflow-hidden z-20">
+                      <div className="absolute top-0 bottom-0 w-[40%] bg-gradient-to-r from-transparent via-[#00ff3c]/35 to-transparent -skew-x-12 -left-[60%] animate-sweep" />
                     </div>
+
+                    <HeartPulse size={28} className="mt-1 text-emerald-400 animate-heartbeat drop-shadow-[0_0_10px_rgba(16,185,129,0.85)] z-10" />
+                    
+                    <span className="text-[8.5px] font-black tracking-widest text-glow-emerald uppercase leading-none mt-auto block z-10">
+                      SAÚDE MENTAL
+                    </span>
                   </button>
                 )}
               </div>
