@@ -68,30 +68,30 @@ export const Conta: React.FC = () => {
   })
 
   return (
-    <div className="space-y-6 text-center select-none pb-8 animate-fade-in max-w-md mx-auto">
-      {/* Premium Avatar Layout (Circular green orbit + intersecting rotating dot) */}
-      <div className="relative py-4">
+    <div className="space-y-3 text-center select-none pb-2 animate-fade-in max-w-md mx-auto flex flex-col justify-center">
+      {/* Premium Avatar Layout (Circular green orbit + intersecting rotating dot) - Resized to be compact */}
+      <div className="relative py-1">
         <div 
           onClick={() => {
             casinoAudio.playTick()
             setEditProfileOpen(true)
           }}
-          className="relative w-28 h-28 mx-auto flex items-center justify-center cursor-pointer group hover:scale-105 transition-transform"
+          className="relative w-22 h-22 mx-auto flex items-center justify-center cursor-pointer group hover:scale-105 transition-transform"
         >
           {/* Inner orbit line */}
-          <div className="absolute w-24 h-24 rounded-full border-2 border-neon-green" />
+          <div className="absolute w-18 h-18 rounded-full border-2 border-neon-green" />
           
           {/* Outer orbit line with rotating green dot */}
           <motion.div 
-            className="absolute w-28 h-28 rounded-full border border-neon-green/30"
+            className="absolute w-22 h-22 rounded-full border border-neon-green/30"
             animate={{ rotate: 360 }}
             transition={{ repeat: Infinity, duration: 10, ease: 'linear' }}
           >
-            <div className="absolute top-1.5 right-2 w-3.5 h-3.5 bg-neon-green rounded-full shadow-[0_0_12px_rgba(0,255,60,0.9)] glow-green" />
+            <div className="absolute top-1 right-1 w-2.5 h-2.5 bg-neon-green rounded-full shadow-[0_0_10px_rgba(0,255,60,0.9)] glow-green" />
           </motion.div>
           
           {/* Inner avatar background showing selected image */}
-          <div className="w-20 h-20 bg-[#12161a] border border-cyber-border rounded-full flex items-center justify-center overflow-hidden">
+          <div className="w-14 h-14 bg-[#12161a] border border-cyber-border rounded-full flex items-center justify-center overflow-hidden">
             {!failedAvatars[avatarId] ? (
               <img 
                 src={`${import.meta.env.BASE_URL}avatars/avatar${avatarId}.png`}
@@ -100,7 +100,7 @@ export const Conta: React.FC = () => {
                 onError={() => setFailedAvatars(prev => ({ ...prev, [avatarId]: true }))}
               />
             ) : (
-              <span className="text-3xl select-none">
+              <span className="text-2xl select-none">
                 {avatars.find(a => a.id === avatarId)?.emoji || '🛡️'}
               </span>
             )}
@@ -109,8 +109,8 @@ export const Conta: React.FC = () => {
       </div>
 
       {/* Profile Name & Edit Button */}
-      <div className="space-y-3 flex flex-col items-center">
-        <h2 className="text-2xl font-black text-white uppercase tracking-wider font-display">
+      <div className="space-y-1.5 flex flex-col items-center">
+        <h2 className="text-xl font-black text-white uppercase tracking-wider font-display">
           {userName ? userName.toUpperCase() : "USUÁRIO VIP"}
         </h2>
         
@@ -119,86 +119,88 @@ export const Conta: React.FC = () => {
             casinoAudio.playTick()
             setEditProfileOpen(true)
           }}
-          className="px-5 py-2 border border-zinc-800 hover:border-zinc-700 bg-zinc-950/40 hover:bg-zinc-900/40 rounded-full text-[10px] font-black uppercase text-zinc-300 flex items-center justify-center gap-1.5 transition-all cursor-pointer"
+          className="px-4 py-1.5 border border-zinc-800 hover:border-zinc-700 bg-zinc-950/40 hover:bg-zinc-900/40 rounded-full text-[9px] font-black uppercase text-zinc-300 flex items-center justify-center gap-1 transition-all cursor-pointer"
         >
-          <Pencil size={11} className="text-zinc-500" />
+          <Pencil size={9} className="text-zinc-500" />
           EDITAR PERFIL
         </button>
       </div>
 
-      {/* Side-by-side stats widget cards */}
-      <div className="grid grid-cols-2 gap-4 mt-6">
+      {/* Side-by-side stats widget cards - Height reduced to h-20 */}
+      <div className="grid grid-cols-2 gap-3 mt-4">
         {/* Left: Dias Limpos */}
         <Card 
-          className="p-5 border-red-500/20 bg-red-950/5 relative overflow-hidden flex flex-col items-center justify-center h-28 text-center"
+          className="p-3.5 border-red-500/20 bg-red-950/5 relative overflow-hidden flex flex-col items-center justify-center h-20 text-center"
         >
-          <div className="absolute bottom-1 right-1 text-red-500/10 opacity-20 pointer-events-none">
-            <Flame size={72} className="stroke-[1.5]" />
+          <div className="absolute bottom-0 right-0 text-red-500/10 opacity-15 pointer-events-none">
+            <Flame size={52} className="stroke-[1.5]" />
           </div>
-          <span className="text-[10px] text-red-400 font-black uppercase tracking-widest block mb-2">
+          <span className="text-[8.5px] text-red-400 font-black uppercase tracking-widest block mb-1">
             DIAS LIMPOS
           </span>
-          <span className="text-4xl font-black text-white tabular-nums leading-none">
+          <span className="text-3xl font-black text-white tabular-nums leading-none">
             {streak}
           </span>
         </Card>
 
         {/* Right: Protegido */}
         <Card 
-          className="p-5 border-emerald-500/20 bg-emerald-950/5 relative overflow-hidden flex flex-col items-center justify-center h-28 text-center"
+          className="p-3.5 border-emerald-500/20 bg-emerald-950/5 relative overflow-hidden flex flex-col items-center justify-center h-20 text-center"
         >
-          <div className="absolute bottom-1 right-1 text-emerald-500/10 opacity-20 pointer-events-none">
-            <Shield size={72} className="stroke-[1.5]" />
+          <div className="absolute bottom-0 right-0 text-emerald-500/10 opacity-15 pointer-events-none">
+            <Shield size={52} className="stroke-[1.5]" />
           </div>
-          <span className="text-[10px] text-emerald-400 font-black uppercase tracking-widest block mb-2">
+          <span className="text-[8.5px] text-emerald-400 font-black uppercase tracking-widest block mb-1">
             PROTEGIDO
           </span>
           <div className="flex items-baseline justify-center leading-none">
-            <span className="text-emerald-400 font-black text-base mr-1">R$</span>
-            <span className="text-3xl font-black text-white tabular-nums">
+            <span className="text-emerald-400 font-black text-xs mr-0.5">R$</span>
+            <span className="text-2xl font-black text-white tabular-nums">
               {realMoneySaved.toFixed(2).replace('.', ',')}
             </span>
           </div>
         </Card>
       </div>
 
-      {/* Vertical buttons stack */}
-      <div className="flex flex-col gap-3.5 mt-6 w-full">
+      {/* Optimized buttons stack - Side-by-side for auxiliary buttons */}
+      <div className="flex flex-col gap-2.5 mt-4 w-full">
         {/* ACESSAR EXTRATO REAL */}
         <button
           onClick={() => {
             casinoAudio.playTick()
             setTab('extrato')
           }}
-          className="w-full py-4 bg-[#ff3344] hover:bg-[#ff4d5a] text-white font-black text-xs uppercase tracking-widest rounded-xl transition-all cursor-pointer flex items-center justify-center gap-2.5 shadow-[0_4px_15px_rgba(255,51,68,0.3)] hover:scale-[1.01]"
+          className="w-full py-3.5 bg-[#ff3344] hover:bg-[#ff4d5a] text-white font-black text-xs uppercase tracking-widest rounded-xl transition-all cursor-pointer flex items-center justify-center gap-2 shadow-[0_4px_15px_rgba(255,51,68,0.3)] hover:scale-[1.01]"
         >
-          <Activity size={16} className="stroke-[2.5]" />
+          <Activity size={15} className="stroke-[2.5]" />
           ACESSAR EXTRATO REAL
         </button>
 
-        {/* GUIA DE AJUDA S.O.S */}
-        <button
-          onClick={() => {
-            casinoAudio.playTick()
-            alert("Abrindo Guia de Ajuda S.O.S. com links úteis de acolhimento.")
-          }}
-          className="w-full py-4 bg-[#12161a] border border-zinc-800 hover:border-zinc-700 hover:bg-zinc-900/40 text-zinc-300 font-black text-xs uppercase tracking-widest rounded-xl transition-all cursor-pointer flex items-center justify-center gap-2.5"
-        >
-          <BookOpen size={16} />
-          GUIA DE AJUDA S.O.S
-        </button>
+        <div className="grid grid-cols-2 gap-2.5">
+          {/* GUIA DE AJUDA S.O.S */}
+          <button
+            onClick={() => {
+              casinoAudio.playTick()
+              alert("Abrindo Guia de Ajuda S.O.S. com links úteis de acolhimento.")
+            }}
+            className="w-full py-3 bg-[#12161a] border border-zinc-800 hover:border-zinc-700 hover:bg-zinc-900/40 text-zinc-300 font-black text-[10px] uppercase tracking-wider rounded-xl transition-all cursor-pointer flex items-center justify-center gap-1.5"
+          >
+            <BookOpen size={13} />
+            GUIA S.O.S
+          </button>
 
-        {/* DIÁRIO PRO PSI */}
-        <button
-          onClick={() => {
-            casinoAudio.playTick()
-            window.print()
-          }}
-          className="w-full py-4 bg-[#12161a] border border-zinc-800 hover:border-zinc-700 hover:bg-zinc-900/40 text-zinc-300 font-black text-xs uppercase tracking-widest rounded-xl transition-all cursor-pointer flex items-center justify-center gap-2.5"
-        >
-          <ClipboardList size={16} />
-          DIÁRIO PRO PSI
-        </button>
+          {/* DIÁRIO PRO PSI */}
+          <button
+            onClick={() => {
+              casinoAudio.playTick()
+              window.print()
+            }}
+            className="w-full py-3 bg-[#12161a] border border-zinc-800 hover:border-zinc-700 hover:bg-zinc-900/40 text-zinc-300 font-black text-[10px] uppercase tracking-wider rounded-xl transition-all cursor-pointer flex items-center justify-center gap-1.5"
+          >
+            <ClipboardList size={13} />
+            DIÁRIO PSI
+          </button>
+        </div>
       </div>
 
       {/* PORTALED PRINT REPORT SHEET */}
