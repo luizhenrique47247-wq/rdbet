@@ -49,11 +49,7 @@ export const MinesGame: React.FC = () => {
   const [showConfetti, setShowConfetti] = useState(false)
   const [showerTrigger, setShowerTrigger] = useState(false)
   const [showerCoords, setShowerCoords] = useState({ x: 0, y: 0 })
-  const [screenMessage, setScreenMessage] = useState<{ text: string; colorClass: string; duration: number } | null>({
-    text: "PREPARANDO",
-    colorClass: "text-[#facc15]/50 drop-shadow-[0_0_15px_rgba(250,204,21,0.3)]",
-    duration: 0
-  })
+  const [screenMessage, setScreenMessage] = useState<{ text: string; colorClass: string; duration: number } | null>(null)
 
   // Interruption overlay states
   const [accumulatedSpent, setAccumulatedSpent] = useState(0)
