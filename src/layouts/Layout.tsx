@@ -79,7 +79,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
   return (
     <div 
       className={cn(
-        "h-screen h-[100dvh] w-full flex justify-center bg-black overflow-hidden transition-colors duration-300",
+        "h-full w-full flex justify-center bg-black overflow-hidden transition-colors duration-300",
         modoCritico && "modo-critico"
       )}
       style={{ filter: `saturate(${saturation})` }}

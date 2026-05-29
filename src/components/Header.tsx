@@ -77,7 +77,7 @@ export const Header: React.FC = () => {
 
   return (
     <>
-      <header className="w-full border-b border-cyber-border bg-[#0b0d10]/45 backdrop-blur-md px-4 py-3.5 flex items-center justify-between z-40 shrink-0">
+      <header className="w-full border-b border-cyber-border bg-[#0b0d10]/45 backdrop-blur-md px-4 pt-safe pb-3.5 flex items-center justify-between z-40 shrink-0">
         {/* Logo Section */}
         <div className="flex items-center gap-2">
           <div className={cn("w-8 h-8 rounded-lg flex items-center justify-center border", shieldBgClass)}>
