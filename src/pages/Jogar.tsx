@@ -15,6 +15,7 @@ import slotsGridImg from '../assets/slots_grid.jpg'
 import doubleGridImg from '../assets/double_grid.jpg'
 import minesGridImg from '../assets/mines_grid.jpg'
 import roletaGridImg from '../assets/roleta_grid.jpg'
+import diceGridImg from '../assets/dice_grid.jpg'
 
 type GameType = 'slots' | 'roleta' | 'double' | 'mines' | 'dice' | 'mental' | null
 
@@ -557,17 +558,23 @@ export const Jogar: React.FC = () => {
                 {(category === 'todos' || category === 'dice') && (
                   <button
                     onClick={() => selectGame('dice')}
-                    className="aspect-[3/4] bg-[#12161a] border border-cyber-border rounded-xl p-3 flex flex-col justify-between items-start text-left cursor-pointer hover:border-blue-500/50 hover:shadow-[0_0_15px_rgba(59,130,246,0.15)] transition-all relative overflow-hidden group"
+                    className="aspect-[3/4] bg-[#12161a] border border-cyber-border rounded-xl flex flex-col justify-between items-start text-left cursor-pointer hover:border-pink-500/50 hover:shadow-[0_0_15px_rgba(236,72,153,0.2)] transition-all relative overflow-hidden group"
                   >
+                    {/* Card background image */}
+                    <img 
+                      src={diceGridImg} 
+                      alt="Dice RD" 
+                      className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 z-0" 
+                    />
+                    
+                    {/* Subtle top/bottom shadow overlay to integrate with UI */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-transparent to-black/35 opacity-90 group-hover:opacity-80 transition-opacity z-1" />
+
                     {hotGame === 'dice' && (
                       <span className="absolute top-1.5 right-1.5 bg-gradient-to-r from-[#ff003c] to-[#ff7700] text-white font-black text-[6.5px] tracking-widest px-2 py-0.5 rounded-full uppercase scale-95 select-none animate-pulse-hot border border-[#ff3300]/50 z-10">
                         🔥 HOT
                       </span>
                     )}
-                    <span className="text-3xl mt-1 select-none opacity-40 group-hover:opacity-80 transition-opacity">🎲</span>
-                    <span className="text-[8px] font-black tracking-widest text-[#60a5fa] uppercase leading-none mt-auto block">
-                      DICE RD
-                    </span>
                   </button>
                 )}
 
