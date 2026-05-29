@@ -1,0 +1,1 @@
+if('serviceWorker' in navigator) navigator.serviceWorker.register('/rdbet/dev-sw.js?dev-sw', { scope: '/rdbet/', type: 'classic' })
